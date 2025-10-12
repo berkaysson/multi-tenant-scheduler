@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "studio": "npx prisma studio --schema=./src/prisma/schema.prisma",
+    "migrate": "npx prisma migrate dev --schema=./src/prisma/schema.prisma",
+    "generate": "npx prisma generate --schema=./src/prisma/schema.prisma",
+    "db:update": "npx prisma generate --schema=./src/prisma/schema.prisma && npx prisma db push --schema=./src/prisma/schema.prisma",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
@@ -37,7 +42,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
-    "prisma": "^5.15.1",
+    "prisma": "^6.17.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
