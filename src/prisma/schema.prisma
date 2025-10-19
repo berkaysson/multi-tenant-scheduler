@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -8,14 +9,38 @@ datasource db {
   directUrl = env("SUPABASE_DIRECT_URL")
 }
 
-// add new roles here
+// ============================================
+// ENUMS
+// ============================================
+
 enum UserRole {
   ADMIN
+  MANAGER
   USER
 }
 
-// Represents an account used for authentication.
-// Fields include provider information and tokens for various auth providers.
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// ============================================
+// AUTHENTICATION MODELS
+// ============================================
+
 model Account {
   id                String  @id @default(cuid())
   userId            String  @map("user_id")
@@ -33,10 +58,10 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
   @@map("accounts")
 }
 
-// Represents a user in the application.
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -44,13 +69,19 @@ model User {
   emailVerified DateTime? @map("email_verified")
   image         String?
   password      String?
-  accounts      Account[]
   role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
+  accounts             Account[]
+  organizationMembers  OrganizationMember[]
+  appointments         Appointment[]
+  createdOrganizations Organization[]       @relation("OrganizationCreator")
+
+  @@index([email])
   @@map("users")
 }
 
-// Represents a token used for email verification.
 model VerificationToken {
   id      String   @id @default(cuid())
   email   String
@@ -58,9 +89,10 @@ model VerificationToken {
   expires DateTime
 
   @@unique([email, token])
+  @@index([token])
+  @@index([email])
 }
 
-// Represents a token used for password reset.
 model PasswordResetToken {
   id      String   @id @default(cuid())
   email   String
@@ -68,4 +100,158 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+  @@index([token])
+  @@index([email])
+}
+
+// ============================================
+// ORGANIZATION MODELS
+// ============================================
+
+model Organization {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  email       String?
+  phone       String?
+  website     String?
+  logo        String?
+
+  // Location fields for nearby search
+  address   String?
+  city      String?
+  country   String?
+  latitude  Float?
+  longitude Float?
+
+  // Settings
+  timezone String  @default("UTC")
+  isActive Boolean @default(true) @map("is_active")
+  isPublic Boolean @default(true) @map("is_public")
+
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy          User                 @relation("OrganizationCreator", fields: [createdById], references: [id])
+  members            OrganizationMember[]
+  weeklyAvailability WeeklyAvailability[]
+  unavailableDates   UnavailableDate[]
+  appointments       Appointment[]
+  appointmentTypes   AppointmentType[]
+
+  @@index([slug])
+  @@index([isActive, isPublic])
+  @@index([createdById])
+  @@index([latitude, longitude]) // For geospatial queries
+  @@index([city, country])
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  userId         String   @map("user_id")
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("organization_members")
+}
+
+// ============================================
+// APPOINTMENT TYPE & AVAILABILITY MODELS
+// ============================================
+
+model AppointmentType {
+  id             String  @id @default(cuid())
+  organizationId String  @map("organization_id")
+  name           String
+  description    String? @db.Text
+  duration       Int // Duration in minutes
+  color          String? // For UI display
+  isActive       Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@index([organizationId, isActive])
+  @@map("appointment_types")
+}
+
+model WeeklyAvailability {
+  id             String    @id @default(cuid())
+  organizationId String    @map("organization_id")
+  dayOfWeek      DayOfWeek @map("day_of_week")
+  startTime      String    @map("start_time") // Format: "HH:mm" (e.g., "09:00")
+  endTime        String    @map("end_time") // Format: "HH:mm" (e.g., "17:00")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, dayOfWeek])
+  @@map("weekly_availability")
+}
+
+model UnavailableDate {
+  id             String   @id @default(cuid())
+  organizationId String   @map("organization_id")
+  date           DateTime @db.Date
+  reason         String?
+
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  Organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, date])
+  @@index([organizationId, date])
+  @@map("unavailable_dates")
+}
+
+// ============================================
+// APPOINTMENT MODELS
+// ============================================
+
+model Appointment {
+  id                String  @id @default(cuid())
+  organizationId    String  @map("organization_id")
+  appointmentTypeId String? @map("appointment_type_id")
+  userId            String  @map("user_id")
+
+  title       String
+  description String?           @db.Text
+  startTime   DateTime          @map("start_time")
+  endTime     DateTime          @map("end_time")
+  status      AppointmentStatus @default(PENDING)
+
+  // Contact information (can be different from user's default)
+  contactName  String? @map("contact_name")
+  contactEmail String? @map("contact_email")
+  contactPhone String? @map("contact_phone")
+
+  notes              String? @db.Text
+  cancellationReason String? @map("cancellation_reason") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointmentType AppointmentType? @relation(fields: [appointmentTypeId], references: [id], onDelete: SetNull)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, startTime, endTime])
+  @@index([userId, startTime])
+  @@index([organizationId, status, startTime])
+  @@index([startTime, endTime]) // For conflict checking
+  @@map("appointments")
 }
