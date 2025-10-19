@@ -1,5 +1,5 @@
 {
-  "name": "next-auth-starter",
+  "name": "multi-tenant-scheduler",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,12 +11,12 @@
     "migrate": "npx prisma migrate dev --schema=./src/prisma/schema.prisma",
     "generate": "npx prisma generate --schema=./src/prisma/schema.prisma",
     "db:update": "npx prisma generate --schema=./src/prisma/schema.prisma && npx prisma db push --schema=./src/prisma/schema.prisma",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=./src/prisma/schema.prisma"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.1",
     "@hookform/resolvers": "^3.6.0",
-    "@prisma/client": "^5.15.1",
+    "@prisma/client": "^6.17.1",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "bcryptjs": "^2.4.3",
