@@ -20,13 +20,13 @@ const Socials = () => {
         >
           Google
         </Button>
-        <Button
+        {/* <Button
           variant={"outline"}
           size={"sm"}
           onClick={() => onClick("github")}
         >
           Github
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
