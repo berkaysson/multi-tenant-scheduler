@@ -5,6 +5,7 @@ import { getUserByEmail } from "@/data/user";
 import db from "@/lib/db";
 import { NewPasswordSchema } from "@/schemas";
 import { z } from "zod";
+import dayjs from "@/lib/dayjs";
 const bcrypt = require("bcryptjs");
 
 /**
@@ -40,7 +41,7 @@ export const newPassword = async (
   }
 
   // Check if the token has expired
-  if (new Date() > new Date(existingToken.expires)) {
+  if (dayjs().isAfter(dayjs(existingToken.expires))) {
     return { message: "Token has expired!" };
   }
 

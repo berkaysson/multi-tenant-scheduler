@@ -2,9 +2,10 @@ import { v4 as uuid } from "uuid";
 import { getVerificationTokenByEmail } from "./verification-token";
 import db from "@/lib/db";
 import { getResetPasswordTokenByEmail } from "./reset-password-token";
+import dayjs from "@/lib/dayjs";
 
 // 1 hour
-const TOKEN_EXPIRY = 3600 * 1000;
+const TOKEN_EXPIRY_HOURS = 1;
 
 // db(PrismaClient) is defined in lib/db.ts,
 
@@ -16,7 +17,7 @@ const TOKEN_EXPIRY = 3600 * 1000;
  */
 export const generateVerificationToken = async (email: string) => {
   const token = uuid();
-  const expires = new Date(new Date().getTime() + TOKEN_EXPIRY);
+  const expires = dayjs().add(TOKEN_EXPIRY_HOURS, 'hour').toDate();
 
   const existingToken = await getVerificationTokenByEmail(email);
 
@@ -43,7 +44,7 @@ export const generateVerificationToken = async (email: string) => {
  */
 export const generateResetPasswordToken = async (email: string) => {
   const token = uuid();
-  const expires = new Date(new Date().getTime() + TOKEN_EXPIRY);
+  const expires = dayjs().add(TOKEN_EXPIRY_HOURS, 'hour').toDate();
 
   const existingToken = await getResetPasswordTokenByEmail(email);
 

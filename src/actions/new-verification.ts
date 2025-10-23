@@ -3,6 +3,7 @@
 import { getUserByEmail } from "@/data/user";
 import { getVerificationTokenByToken } from "@/data/verification-token";
 import db from "@/lib/db";
+import dayjs from "@/lib/dayjs";
 
 /**
  * Verifies a user's email using a token.
@@ -21,7 +22,7 @@ export const newVerification = async (token: string) => {
   }
 
   // Check if the token has expired
-  const hasExpired = new Date(existingToken.expires) < new Date();
+  const hasExpired = dayjs(existingToken.expires).isBefore(dayjs());
   if (hasExpired) {
     return { message: "Token has expired!" };
   }
@@ -38,7 +39,7 @@ export const newVerification = async (token: string) => {
   await db.user.update({
     where: { id: existingUser.id },
     data: {
-      emailVerified: new Date(),
+      emailVerified: dayjs().toDate(),
       email: existingToken.email,
     },
   });

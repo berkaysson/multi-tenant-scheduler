@@ -126,7 +126,7 @@ model Organization {
   longitude Float?
 
   // Settings
-  timezone String  @default("UTC")
+  timezone String  @default("Europe/Istanbul")
   isActive Boolean @default(true) @map("is_active")
   isPublic Boolean @default(true) @map("is_public")
 
