@@ -1,6 +1,7 @@
 /**
  * This module contains the routes used in the application.
  */
+import { UserRole } from "@prisma/client";
 
 /**
  * An array of public routes.
@@ -36,3 +37,60 @@ export const DEFAULT_LOGIN_REDIRECT = "/settings";
  * @type {string}
  */
 export const MAIN_DOMAIN = "http://localhost:3000";
+
+/**
+ * Routes that require manager role access
+ * @type {string[]}
+ */
+export const managerRoutes = [
+  "/manager",
+  "/settings", // Manager can access settings
+];
+
+/**
+ * Routes that require admin role access
+ * @type {string[]}
+ */
+export const adminRoutes = [
+  "/admin",
+];
+
+/**
+ * Routes that regular users can access
+ * @type {string[]}
+ */
+export const userRoutes = [
+  "/dashboard",
+];
+
+/**
+ * Maps routes to their required roles
+ * @type {Record<string, UserRole[]>}
+ */
+export const routeRoles: Record<string, UserRole[]> = {
+  "/admin": [UserRole.ADMIN],
+  "/manager": [UserRole.MANAGER, UserRole.ADMIN],
+  "/settings": [UserRole.MANAGER, UserRole.ADMIN],
+  "/dashboard": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
+};
+
+/**
+ * Gets the required roles for a given route
+ * @param pathname - The pathname to check
+ * @returns Array of required roles, or empty array if route is public
+ */
+export function getRequiredRoles(pathname: string): UserRole[] {
+  // Check exact matches first
+  if (routeRoles[pathname]) {
+    return routeRoles[pathname];
+  }
+  
+  // Check if any route starts with the pathname
+  for (const [route, roles] of Object.entries(routeRoles)) {
+    if (pathname.startsWith(route)) {
+      return roles;
+    }
+  }
+  
+  return [];
+}

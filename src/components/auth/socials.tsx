@@ -5,7 +5,9 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 const Socials = () => {
   const onClick = (provider: "google" | "github") => {
-    signIn(provider, { callbackUrl: DEFAULT_LOGIN_REDIRECT });
+    // For OAuth, redirect to dashboard initially
+    // The middleware will handle role-based redirects after authentication
+    signIn(provider, { callbackUrl: "/dashboard" });
   };
   return (
     <div>

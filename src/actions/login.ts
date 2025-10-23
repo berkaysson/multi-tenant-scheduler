@@ -4,7 +4,7 @@ import { signIn } from "@/auth";
 import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail } from "@/data/user";
 import { sendVerificationEmail } from "@/lib/mail";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { getRoleRedirect } from "@/lib/role-redirect";
 import { LoginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
 import { z } from "zod";
@@ -56,11 +56,14 @@ export const login = async (data: z.infer<typeof LoginSchema>) => {
   }
 
   try {
+    // Get the role-based redirect URL
+    const redirectUrl = getRoleRedirect(existingUser.role);
+    
     // Attempt to sign in the user
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo: redirectUrl,
     });
     return { message: "Login successful!" };
   } catch (error) {

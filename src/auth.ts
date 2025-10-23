@@ -52,6 +52,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
       return token;
     },
+    async redirect({ url, baseUrl }) {
+      // If redirecting to a callback URL, allow it
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If redirecting to the same domain, allow it
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   events: {
     async linkAccount({ user }) {
