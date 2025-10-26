@@ -131,3 +131,70 @@ export const getPublicOrganizations = async () => {
     return { success: false, message: "Something went wrong!" };
   }
 };
+
+/**
+ * Gets all organizations with search and sort support.
+ *
+ * @param {string} searchQuery - Search query to filter organizations by name, city, or country
+ * @param {string} sortBy - Field to sort by ('name', 'city', 'country', 'createdAt', 'appointments')
+ * @param {string} sortOrder - Sort order ('asc' or 'desc')
+ * @returns {Promise<{ success: boolean; message: string; organizations?: any[] }>} - A promise that resolves to an object with organizations array or error message.
+ */
+export const getOrganizations = async (
+  searchQuery?: string,
+  sortBy: string = 'createdAt',
+  sortOrder: 'asc' | 'desc' = 'desc'
+) => {
+  try {
+    // Build where clause for search
+    const where = searchQuery
+      ? {
+          OR: [
+            { name: { contains: searchQuery, mode: 'insensitive' as const } },
+            { city: { contains: searchQuery, mode: 'insensitive' as const } },
+            { country: { contains: searchQuery, mode: 'insensitive' as const } },
+            { description: { contains: searchQuery, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
+    // Build orderBy clause
+    let orderBy: any = {};
+    
+    if (sortBy === 'appointments') {
+      orderBy = {
+        appointments: {
+          _count: sortOrder
+        }
+      };
+    } else {
+      orderBy[sortBy] = sortOrder;
+    }
+
+    const organizations = await db.organization.findMany({
+      where,
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        _count: {
+          select: {
+            members: true,
+            appointments: true,
+            appointmentTypes: true,
+          }
+        }
+      },
+      orderBy,
+    });
+
+    return { success: true, organizations };
+  } catch (error) {
+    console.error("Error getting organizations:", error);
+    return { success: false, message: "Something went wrong!" };
+  }
+};
