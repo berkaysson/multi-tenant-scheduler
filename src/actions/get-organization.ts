@@ -173,7 +173,21 @@ export const getOrganizations = async (
 
     const organizations = await db.organization.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        email: true,
+        phone: true,
+        city: true,
+        country: true,
+        address: true,
+        latitude: true,
+        longitude: true,
+        isActive: true,
+        isPublic: true,
+        createdAt: true,
         createdBy: {
           select: {
             id: true,
