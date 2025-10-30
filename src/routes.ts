@@ -30,7 +30,7 @@ export const apiAuthRoute = "/api/auth";
  * The default redirect route after successful login.
  * @type {string}
  */
-export const DEFAULT_LOGIN_REDIRECT = "/settings";
+export const DEFAULT_LOGIN_REDIRECT = "/organizations";
 
 /**
  * The main domain of the application.
@@ -72,6 +72,7 @@ export const routeRoles: Record<string, UserRole[]> = {
   "/manager": [UserRole.MANAGER, UserRole.ADMIN],
   "/settings": [UserRole.MANAGER, UserRole.ADMIN],
   "/dashboard": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
+  "/organizations": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
 };
 
 /**
