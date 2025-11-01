@@ -57,6 +57,11 @@ export const getManagerOrganization = async () => {
             dayOfWeek: 'asc',
           },
         },
+        unavailableDates: {
+          orderBy: {
+            date: 'asc',
+          },
+        },
         _count: {
           select: {
             appointments: true,
