@@ -47,6 +47,11 @@ export const getManagerOrganization = async () => {
             }
           }
         },
+        appointmentTypes: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
         _count: {
           select: {
             appointments: true,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm } from "@/components/organizations";
+import { UpdateOrganizationForm, AppointmentTypesForm } from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -14,20 +14,20 @@ export default function ManagerOrganizationPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchOrganization = async () => {
-      setLoading(true);
-      const result = await getManagerOrganization();
-      
-      if (result.success && result.organization) {
-        setOrganization(result.organization);
-        setError(null);
-      } else {
-        setError(result.message || "Failed to load organization");
-      }
-      setLoading(false);
-    };
+  const fetchOrganization = async () => {
+    setLoading(true);
+    const result = await getManagerOrganization();
+    
+    if (result.success && result.organization) {
+      setOrganization(result.organization);
+      setError(null);
+    } else {
+      setError(result.message || "Failed to load organization");
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchOrganization();
   }, []);
 
@@ -150,6 +150,15 @@ export default function ManagerOrganizationPage() {
 
       {/* Update Form */}
       <UpdateOrganizationForm organization={organization} />
+
+      {/* Appointment Types Form */}
+      <div className="mt-6">
+        <AppointmentTypesForm
+          organizationId={organization.id}
+          appointmentTypes={organization.appointmentTypes || []}
+          onUpdate={fetchOrganization}
+        />
+      </div>
     </div>
   );
 }
