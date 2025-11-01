@@ -6,4 +6,5 @@ export type { Organization } from "./types";
 export { CreateOrganizationForm } from "./create-organization-form";
 export { UpdateOrganizationForm } from "./update-organization-form";
 export { AppointmentTypesForm } from "./appointment-types-form";
+export { WeeklyAvailabilityForm } from "./weekly-availability-form";
 

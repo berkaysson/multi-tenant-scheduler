@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm, AppointmentTypesForm } from "@/components/organizations";
+import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm } from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -150,6 +150,15 @@ export default function ManagerOrganizationPage() {
 
       {/* Update Form */}
       <UpdateOrganizationForm organization={organization} />
+
+      {/* Weekly Availability Form */}
+      <div className="mt-6">
+        <WeeklyAvailabilityForm
+          organizationId={organization.id}
+          weeklyAvailability={organization.weeklyAvailability || []}
+          onUpdate={fetchOrganization}
+        />
+      </div>
 
       {/* Appointment Types Form */}
       <div className="mt-6">
