@@ -44,8 +44,11 @@ export function LocationPicker({
         shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       })
 
+      // Use initialLocation if provided, otherwise use center
+      const mapCenter = initialLocation || center
+      
       // Initialize map
-      map = L.map(mapRef.current!).setView(center, zoom)
+      map = L.map(mapRef.current!).setView(mapCenter, zoom)
       mapInstanceRef.current = map
 
       // Add tile layer
@@ -53,6 +56,24 @@ export function LocationPicker({
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map)
+
+      // Place initial marker if initialLocation is provided
+      if (initialLocation) {
+        marker = L.marker([initialLocation[0], initialLocation[1]], { draggable: true }).addTo(map)
+        markerRef.current = marker
+        marker.bindPopup("Selected Location")
+        marker.openPopup()
+        setSelectedLocation(initialLocation)
+
+        // Handle marker drag
+        marker.on("dragend", () => {
+          const position = marker.getLatLng()
+          const draggedLocation: [number, number] = [position.lat, position.lng]
+          console.log("[v0] Marker dragged to:", draggedLocation)
+          setSelectedLocation(draggedLocation)
+          onLocationSelect?.(draggedLocation)
+        })
+      }
 
       // Handle map click to place/move marker
       map.on("click", (e: any) => {
@@ -99,6 +120,44 @@ export function LocationPicker({
       }
     }
   }, []) // Empty dependency array to prevent recreation
+
+  // Update marker when initialLocation changes
+  useEffect(() => {
+    if (!mapInstanceRef.current || !initialLocation) return
+
+    const updateMarker = async () => {
+      const L = (await import("leaflet")).default
+      const map = mapInstanceRef.current
+      
+      if (!map) return
+
+      // Update map view to initial location
+      map.setView(initialLocation, map.getZoom())
+
+      // Update or create marker
+      if (markerRef.current) {
+        markerRef.current.setLatLng([initialLocation[0], initialLocation[1]])
+        markerRef.current.openPopup()
+      } else {
+        const marker = L.marker([initialLocation[0], initialLocation[1]], { draggable: true }).addTo(map)
+        markerRef.current = marker
+        marker.bindPopup("Selected Location")
+        marker.openPopup()
+
+        // Handle marker drag
+        marker.on("dragend", () => {
+          const position = marker.getLatLng()
+          const draggedLocation: [number, number] = [position.lat, position.lng]
+          setSelectedLocation(draggedLocation)
+          onLocationSelect?.(draggedLocation)
+        })
+      }
+
+      setSelectedLocation(initialLocation)
+    }
+
+    updateMarker()
+  }, [initialLocation, onLocationSelect])
 
   return (
     <div className="space-y-2">

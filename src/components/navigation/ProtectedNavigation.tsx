@@ -4,10 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { UserRole } from "@prisma/client";
 
 const ProtectedNavigation = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = useSession();
+  const userRole = session?.user?.role as UserRole | undefined;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -15,6 +19,9 @@ const ProtectedNavigation = () => {
 
   const navItems = [
     { name: "Organizations", href: "/organizations" },
+    ...(userRole === UserRole.MANAGER || userRole === UserRole.ADMIN
+      ? [{ name: "My Organization", href: "/manager/organization" }]
+      : []),
     { name: "Settings", href: "/settings" },
   ];
 

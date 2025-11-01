@@ -39,31 +39,6 @@ export const DEFAULT_LOGIN_REDIRECT = "/organizations";
 export const MAIN_DOMAIN = "http://localhost:3000";
 
 /**
- * Routes that require manager role access
- * @type {string[]}
- */
-export const managerRoutes = [
-  "/manager",
-  "/settings", // Manager can access settings
-];
-
-/**
- * Routes that require admin role access
- * @type {string[]}
- */
-export const adminRoutes = [
-  "/admin",
-];
-
-/**
- * Routes that regular users can access
- * @type {string[]}
- */
-export const userRoutes = [
-  "/dashboard",
-];
-
-/**
  * Maps routes to their required roles
  * @type {Record<string, UserRole[]>}
  */
@@ -73,6 +48,8 @@ export const routeRoles: Record<string, UserRole[]> = {
   "/settings": [UserRole.MANAGER, UserRole.ADMIN, UserRole.USER],
   "/dashboard": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
   "/organizations": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
+  "/organizations/create": [UserRole.MANAGER, UserRole.ADMIN, UserRole.USER],
+  "/organizations/update": [UserRole.MANAGER, UserRole.ADMIN],
 };
 
 /**
@@ -85,13 +62,13 @@ export function getRequiredRoles(pathname: string): UserRole[] {
   if (routeRoles[pathname]) {
     return routeRoles[pathname];
   }
-  
+
   // Check if any route starts with the pathname
   for (const [route, roles] of Object.entries(routeRoles)) {
     if (pathname.startsWith(route)) {
       return roles;
     }
   }
-  
+
   return [];
 }
