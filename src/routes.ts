@@ -70,7 +70,7 @@ export const userRoutes = [
 export const routeRoles: Record<string, UserRole[]> = {
   "/admin": [UserRole.ADMIN],
   "/manager": [UserRole.MANAGER, UserRole.ADMIN],
-  "/settings": [UserRole.MANAGER, UserRole.ADMIN],
+  "/settings": [UserRole.MANAGER, UserRole.ADMIN, UserRole.USER],
   "/dashboard": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
   "/organizations": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
 };

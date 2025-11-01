@@ -41,6 +41,25 @@ export const createOrganization = async (data: z.infer<typeof CreateOrganization
       return { success: false, message: "Slug already in use!" };
     }
 
+    // Check if this is the user's first organization
+    const userOrganizationsCount = await db.organization.count({
+      where: { createdById: session.user.id },
+    });
+
+    // Get current user to check their role
+    const currentUser = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    // If this is the user's first organization and they're currently a USER, promote to MANAGER
+    if (userOrganizationsCount === 0 && currentUser?.role === "USER") {
+      await db.user.update({
+        where: { id: session.user.id },
+        data: { role: "MANAGER" },
+      });
+    }
+
     // Create the organization
     const organization = await db.organization.create({
       data: {
