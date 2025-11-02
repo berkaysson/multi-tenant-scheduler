@@ -50,6 +50,7 @@ export const routeRoles: Record<string, UserRole[]> = {
   "/organizations": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
   "/organizations/create": [UserRole.MANAGER, UserRole.ADMIN, UserRole.USER],
   "/organizations/update": [UserRole.MANAGER, UserRole.ADMIN],
+  "/appointments": [UserRole.USER, UserRole.MANAGER, UserRole.ADMIN],
 };
 
 /**

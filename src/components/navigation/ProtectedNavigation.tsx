@@ -19,6 +19,7 @@ const ProtectedNavigation = () => {
 
   const navItems = [
     { name: "Organizations", href: "/organizations" },
+    { name: "My Appointments", href: "/appointments" },
     ...(userRole === UserRole.MANAGER || userRole === UserRole.ADMIN
       ? [{ name: "My Organization", href: "/manager/organization" }]
       : []),
