@@ -6,6 +6,7 @@ import {
   OrganizationCard,
   OrganizationSearchFilter,
   OrganizationMapDialogs,
+  OrganizationCalendarDialog,
   Organization,
 } from "@/components/organizations";
 import { useEffect, useState } from "react";
@@ -18,6 +19,8 @@ export default function OrganizationsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showAllMap, setShowAllMap] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
+  const [calendarOrg, setCalendarOrg] = useState<Organization | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const fetchOrganizations = async () => {
     setLoading(true);
@@ -43,6 +46,11 @@ export default function OrganizationsPage() {
 
   const handleShowOrgMap = (org: Organization) => {
     setSelectedOrg(org);
+  };
+
+  const handleShowCalendar = (org: Organization) => {
+    setCalendarOrg(org);
+    setShowCalendar(true);
   };
 
   const handleReset = () => {
@@ -96,6 +104,7 @@ export default function OrganizationsPage() {
                 key={org.id}
                 org={org}
                 onShowMap={handleShowOrgMap}
+                onShowCalendar={handleShowCalendar}
               />
             ))}
           </div>
@@ -109,6 +118,14 @@ export default function OrganizationsPage() {
         organizations={organizations}
         onAllMapChange={setShowAllMap}
         onSelectedOrgChange={setSelectedOrg}
+      />
+
+      {/* Calendar Dialog */}
+      <OrganizationCalendarDialog
+        organizationId={calendarOrg?.id || null}
+        organizationName={calendarOrg?.name || ""}
+        open={showCalendar}
+        onOpenChange={setShowCalendar}
       />
     </div>
   );

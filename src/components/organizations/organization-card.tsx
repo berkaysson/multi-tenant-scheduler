@@ -2,15 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import { Organization } from "./types";
 
 interface OrganizationCardProps {
   org: Organization;
   onShowMap: (org: Organization) => void;
+  onShowCalendar: (org: Organization) => void;
 }
 
-export function OrganizationCard({ org, onShowMap }: OrganizationCardProps) {
+export function OrganizationCard({ org, onShowMap, onShowCalendar }: OrganizationCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -52,20 +53,30 @@ export function OrganizationCard({ org, onShowMap }: OrganizationCardProps) {
           </p>
         )}
         
-        {org.latitude && org.longitude && (
-          <div className="mb-4">
+        <div className="mb-4 flex gap-2">
+          {org.latitude && org.longitude && (
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => onShowMap(org)}
-              className="w-full gap-2"
+              className="flex-1 gap-2"
             >
               <MapPin className="h-4 w-4" />
               Show in Map
             </Button>
-          </div>
-        )}
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onShowCalendar(org)}
+            className={`gap-2 ${org.latitude && org.longitude ? "flex-1" : "w-full"}`}
+          >
+            <Calendar className="h-4 w-4" />
+            View Calendar
+          </Button>
+        </div>
         
         <div className="space-y-2 mb-4">
           {org.email && (

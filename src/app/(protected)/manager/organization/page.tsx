@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm } from "@/components/organizations";
+import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog } from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ManagerOrganizationPage() {
   const [organization, setOrganization] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const router = useRouter();
 
   const fetchOrganization = async () => {
@@ -80,7 +81,18 @@ export default function ManagerOrganizationPage() {
       {/* Organization Overview Card */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Organization Overview</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Organization Overview</CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCalendar(true)}
+              className="gap-2"
+            >
+              <Calendar className="h-4 w-4" />
+              View Calendar
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,6 +189,16 @@ export default function ManagerOrganizationPage() {
           onUpdate={fetchOrganization}
         />
       </div>
+
+      {/* Calendar Dialog */}
+      {organization && (
+        <OrganizationCalendarDialog
+          organizationId={organization.id}
+          organizationName={organization.name}
+          open={showCalendar}
+          onOpenChange={setShowCalendar}
+        />
+      )}
     </div>
   );
 }

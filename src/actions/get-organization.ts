@@ -34,6 +34,16 @@ export const getOrganization = async (organizationId: string) => {
             }
           }
         },
+        weeklyAvailability: {
+          orderBy: {
+            dayOfWeek: 'asc',
+          },
+        },
+        unavailableDates: {
+          orderBy: {
+            date: 'asc',
+          },
+        },
         _count: {
           select: {
             appointments: true,
