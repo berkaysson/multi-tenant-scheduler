@@ -46,9 +46,10 @@ interface UpdateOrganizationFormProps {
     isActive: boolean;
     isPublic: boolean;
   };
+  onUpdate?: () => void;
 }
 
-export function UpdateOrganizationForm({ organization }: UpdateOrganizationFormProps) {
+export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganizationFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -107,6 +108,9 @@ export function UpdateOrganizationForm({ organization }: UpdateOrganizationFormP
       if (result.success) {
         toast.success(result.message);
         router.refresh();
+        if (onUpdate) {
+          onUpdate();
+        }
       } else {
         toast.error(result.message);
       }

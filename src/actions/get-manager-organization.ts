@@ -5,10 +5,10 @@ import db from "@/lib/db";
 import { UserRole } from "@prisma/client";
 
 /**
- * Gets the organization that the current manager created.
- * Managers can only see the organization they created.
+ * Gets all organizations that the current manager created.
+ * Managers can only see the organizations they created.
  *
- * @returns {Promise<{ success: boolean; message: string; organization?: any }>} - A promise that resolves to an object with organization data or error message.
+ * @returns {Promise<{ success: boolean; message: string; organizations?: any[] }>} - A promise that resolves to an object with organizations data or error message.
  */
 export const getManagerOrganization = async () => {
   try {
@@ -23,8 +23,8 @@ export const getManagerOrganization = async () => {
       return { success: false, message: "Only Managers and Admins can access this!" };
     }
 
-    // Get the organization created by this user
-    const organization = await db.organization.findFirst({
+    // Get all organizations created by this user
+    const organizations = await db.organization.findMany({
       where: {
         createdById: session.user.id,
       },
@@ -68,16 +68,19 @@ export const getManagerOrganization = async () => {
             appointmentTypes: true,
           }
         }
-      }
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    if (!organization) {
-      return { success: false, message: "You don't have an organization yet!" };
+    if (!organizations || organizations.length === 0) {
+      return { success: false, message: "You don't have any organizations yet!" };
     }
 
-    return { success: true, organization };
+    return { success: true, organizations };
   } catch (error) {
-    console.error("Error getting manager organization:", error);
+    console.error("Error getting manager organizations:", error);
     return { success: false, message: "Something went wrong!" };
   }
 };
