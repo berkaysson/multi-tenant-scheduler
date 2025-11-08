@@ -50,8 +50,10 @@ export default function ManagerOrganizationPage() {
     
     if (result.success && result.organizations) {
       setOrganizations(result.organizations);
+      // Set active tab to first active organization, or first organization if none are active
       if (result.organizations.length > 0 && !activeTab) {
-        setActiveTab(result.organizations[0].id);
+        const activeOrg = result.organizations.find(org => org.isActive);
+        setActiveTab(activeOrg ? activeOrg.id : result.organizations[0].id);
       }
       setError(null);
     } else {
@@ -98,15 +100,17 @@ export default function ManagerOrganizationPage() {
                   <CalendarClock className="h-4 w-4" />
                   View Appointments
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleShowCalendar(organization.id)}
-                  className="gap-2"
-                >
-                  <Calendar className="h-4 w-4" />
-                  View Calendar
-                </Button>
+                {organization.isActive && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleShowCalendar(organization.id)}
+                    className="gap-2"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    View Calendar
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -294,6 +298,9 @@ export default function ManagerOrganizationPage() {
     return null;
   }
 
+  const activeOrganizations = organizations.filter(org => org.isActive);
+  const inactiveOrganizations = organizations.filter(org => !org.isActive);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -305,11 +312,25 @@ export default function ManagerOrganizationPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full max-w-4xl mb-6 overflow-x-auto">
-          {organizations.map((org) => (
+          {activeOrganizations.map((org) => (
             <TabsTrigger key={org.id} value={org.id} className="whitespace-nowrap min-w-[120px]">
               {org.name}
             </TabsTrigger>
           ))}
+          {inactiveOrganizations.length > 0 && (
+            <>
+              <div className="mx-2 h-6 w-px bg-border" />
+              {inactiveOrganizations.map((org) => (
+                <TabsTrigger 
+                  key={org.id} 
+                  value={org.id} 
+                  className="whitespace-nowrap min-w-[120px] opacity-60"
+                >
+                  {org.name} (Inactive)
+                </TabsTrigger>
+              ))}
+            </>
+          )}
         </TabsList>
         
         {organizations.map((org) => (

@@ -60,22 +60,24 @@ export function OrganizationCard({ org, onShowMap, onShowCalendar }: Organizatio
               variant="outline"
               size="sm"
               onClick={() => onShowMap(org)}
-              className="flex-1 gap-2"
+              className={org.isActive ? "flex-1 gap-2" : "w-full gap-2"}
             >
               <MapPin className="h-4 w-4" />
               Show in Map
             </Button>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onShowCalendar(org)}
-            className={`gap-2 ${org.latitude && org.longitude ? "flex-1" : "w-full"}`}
-          >
-            <Calendar className="h-4 w-4" />
-            View Calendar
-          </Button>
+          {org.isActive && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onShowCalendar(org)}
+              className={`gap-2 ${org.latitude && org.longitude ? "flex-1" : "w-full"}`}
+            >
+              <Calendar className="h-4 w-4" />
+              View Calendar
+            </Button>
+          )}
         </div>
         
         <div className="space-y-2 mb-4">

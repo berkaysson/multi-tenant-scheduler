@@ -98,16 +98,49 @@ export default function OrganizationsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {organizations.map((org) => (
-              <OrganizationCard
-                key={org.id}
-                org={org}
-                onShowMap={handleShowOrgMap}
-                onShowCalendar={handleShowCalendar}
-              />
-            ))}
-          </div>
+          <>
+            {/* Active Organizations */}
+            {organizations.filter(org => org.isActive).length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                  Active Organizations
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {organizations
+                    .filter(org => org.isActive)
+                    .map((org) => (
+                      <OrganizationCard
+                        key={org.id}
+                        org={org}
+                        onShowMap={handleShowOrgMap}
+                        onShowCalendar={handleShowCalendar}
+                      />
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Inactive Organizations */}
+            {organizations.filter(org => !org.isActive).length > 0 && (
+              <div className="mt-12 pt-8 border-t border-gray-300">
+                <h2 className="text-2xl font-semibold text-gray-600 mb-4">
+                  Inactive Organizations
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {organizations
+                    .filter(org => !org.isActive)
+                    .map((org) => (
+                      <OrganizationCard
+                        key={org.id}
+                        org={org}
+                        onShowMap={handleShowOrgMap}
+                        onShowCalendar={handleShowCalendar}
+                      />
+                    ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
