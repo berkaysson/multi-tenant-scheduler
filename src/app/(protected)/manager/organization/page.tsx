@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog } from "@/components/organizations";
+import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog, OrganizationAppointmentsDialog } from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Calendar } from "lucide-react";
+import { Loader2, Calendar, CalendarClock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Organization {
@@ -41,6 +41,7 @@ export default function ManagerOrganizationPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
   const [calendarStates, setCalendarStates] = useState<Record<string, boolean>>({});
+  const [appointmentsStates, setAppointmentsStates] = useState<Record<string, boolean>>({});
   const router = useRouter();
 
   const fetchOrganizations = async () => {
@@ -71,6 +72,14 @@ export default function ManagerOrganizationPage() {
     setCalendarStates(prev => ({ ...prev, [organizationId]: false }));
   };
 
+  const handleShowAppointments = (organizationId: string) => {
+    setAppointmentsStates(prev => ({ ...prev, [organizationId]: true }));
+  };
+
+  const handleCloseAppointments = (organizationId: string) => {
+    setAppointmentsStates(prev => ({ ...prev, [organizationId]: false }));
+  };
+
   const renderOrganizationContent = (organization: Organization) => {
     return (
       <div>
@@ -79,15 +88,26 @@ export default function ManagerOrganizationPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Organization Overview</CardTitle>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleShowCalendar(organization.id)}
-                className="gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                View Calendar
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleShowAppointments(organization.id)}
+                  className="gap-2"
+                >
+                  <CalendarClock className="h-4 w-4" />
+                  View Appointments
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleShowCalendar(organization.id)}
+                  className="gap-2"
+                >
+                  <Calendar className="h-4 w-4" />
+                  View Calendar
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -216,6 +236,20 @@ export default function ManagerOrganizationPage() {
               handleCloseCalendar(organization.id);
             } else {
               handleShowCalendar(organization.id);
+            }
+          }}
+        />
+
+        {/* Appointments Dialog */}
+        <OrganizationAppointmentsDialog
+          organizationId={organization.id}
+          organizationName={organization.name}
+          open={appointmentsStates[organization.id] || false}
+          onOpenChange={(open) => {
+            if (!open) {
+              handleCloseAppointments(organization.id);
+            } else {
+              handleShowAppointments(organization.id);
             }
           }}
         />
