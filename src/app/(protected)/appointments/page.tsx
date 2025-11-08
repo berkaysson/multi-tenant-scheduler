@@ -2,9 +2,11 @@
 
 import { getUserAppointments, getNearestAppointment } from "@/actions/get-user-appointments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import dayjs from "@/lib/dayjs";
 import { useEffect, useState } from "react";
-import { Calendar, Clock, MapPin, Building2, Phone, Mail } from "lucide-react";
+import { Calendar, Clock, MapPin, Building2, Phone, Mail, X } from "lucide-react";
+import { CancelAppointmentDialog } from "@/components/appointments/cancel-appointment-dialog";
 
 interface AppointmentType {
   id: string;
@@ -36,6 +38,7 @@ interface Appointment {
   contactEmail: string | null;
   contactPhone: string | null;
   notes: string | null;
+  cancellationReason: string | null;
   organization: Organization;
   appointmentType: AppointmentType | null;
   createdAt: Date;
@@ -46,6 +49,8 @@ const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [nearestAppointment, setNearestAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -100,6 +105,21 @@ const AppointmentsPage = () => {
     return dayjs(date).fromNow();
   };
 
+  const handleCancelClick = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setCancelDialogOpen(true);
+  };
+
+  const handleCancelSuccess = () => {
+    fetchAppointments();
+  };
+
+  const canCancelAppointment = (appointment: Appointment) => {
+    return appointment.status !== "CANCELLED" && 
+           appointment.status !== "COMPLETED" &&
+           isUpcoming(appointment.startTime);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -112,8 +132,12 @@ const AppointmentsPage = () => {
     );
   }
 
-  const upcomingAppointments = appointments.filter((apt) => isUpcoming(apt.startTime));
-  const pastAppointments = appointments.filter((apt) => !isUpcoming(apt.startTime));
+  const upcomingAppointments = appointments.filter((apt) => 
+    isUpcoming(apt.startTime) && apt.status !== "CANCELLED"
+  );
+  const pastAppointments = appointments.filter((apt) => 
+    !isUpcoming(apt.startTime) || apt.status === "CANCELLED"
+  );
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -213,6 +237,19 @@ const AppointmentsPage = () => {
                       <p className="text-sm text-gray-800">{nearestAppointment.notes}</p>
                     </div>
                   )}
+                  {canCancelAppointment(nearestAppointment) && (
+                    <div className="mt-4 pt-4 border-t">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleCancelClick(nearestAppointment)}
+                        className="w-full"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel Appointment
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -260,6 +297,19 @@ const AppointmentsPage = () => {
                         </div>
                       )}
                     </div>
+                    {canCancelAppointment(appointment) && (
+                      <div className="mt-4 pt-4 border-t">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleCancelClick(appointment)}
+                          className="w-full"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Cancel Appointment
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -299,12 +349,29 @@ const AppointmentsPage = () => {
                           <span>{appointment.appointmentType.name}</span>
                         </div>
                       )}
+                      {appointment.status === "CANCELLED" && appointment.cancellationReason && (
+                        <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
+                          <p className="font-medium mb-1">Cancellation Reason:</p>
+                          <p>{appointment.cancellationReason}</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
+        )}
+
+        {/* Cancel Appointment Dialog */}
+        {selectedAppointment && (
+          <CancelAppointmentDialog
+            appointmentId={selectedAppointment.id}
+            appointmentTitle={selectedAppointment.title}
+            open={cancelDialogOpen}
+            onOpenChange={setCancelDialogOpen}
+            onSuccess={handleCancelSuccess}
+          />
         )}
 
         {/* No Appointments */}

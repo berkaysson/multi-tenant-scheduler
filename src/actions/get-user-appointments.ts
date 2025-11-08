@@ -22,7 +22,18 @@ export const getUserAppointments = async () => {
       where: {
         userId: session.user.id,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        contactName: true,
+        contactEmail: true,
+        contactPhone: true,
+        notes: true,
+        cancellationReason: true,
         organization: {
           select: {
             id: true,
@@ -44,6 +55,8 @@ export const getUserAppointments = async () => {
             color: true,
           },
         },
+        createdAt: true,
+        updatedAt: true,
       },
       orderBy: {
         startTime: 'asc',
@@ -82,7 +95,18 @@ export const getNearestAppointment = async () => {
           not: AppointmentStatus.CANCELLED,
         },
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        contactName: true,
+        contactEmail: true,
+        contactPhone: true,
+        notes: true,
+        cancellationReason: true,
         organization: {
           select: {
             id: true,
@@ -104,6 +128,8 @@ export const getNearestAppointment = async () => {
             color: true,
           },
         },
+        createdAt: true,
+        updatedAt: true,
       },
       orderBy: {
         startTime: 'asc',
