@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import dayjs from "dayjs";
+import { CreateAppointmentDialog } from "./create-appointment-dialog";
 
 interface WeeklyAvailability {
   id: string;
@@ -41,6 +42,7 @@ interface OrganizationHoursDialogProps {
   date: string | null;
   weeklyAvailability: WeeklyAvailability[];
   organizationId: string | null;
+  isOwner?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -49,11 +51,14 @@ export function OrganizationHoursDialog({
   date,
   weeklyAvailability,
   organizationId,
+  isOwner = false,
   open,
   onOpenChange,
 }: OrganizationHoursDialogProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedHour, setSelectedHour] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     if (open && date && organizationId) {
@@ -137,6 +142,20 @@ export function OrganizationHoursDialog({
     });
   };
 
+  const handleHourClick = (hour: string) => {
+    // If user owns the organization, don't allow booking (read-only view)
+    if (isOwner) return;
+    
+    if (!organizationId || !date) return;
+    setSelectedHour(hour);
+    setShowCreateDialog(true);
+  };
+
+  const handleAppointmentCreated = () => {
+    // Refresh appointments after creation
+    fetchAppointments();
+  };
+
   if (!date) {
     return null;
   }
@@ -148,10 +167,12 @@ export function OrganizationHoursDialog({
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Available Hours - {dayjs(date).format("MMMM D, YYYY")}
+            {isOwner ? "Appointments" : "Available Hours"} - {dayjs(date).format("MMMM D, YYYY")}
           </DialogTitle>
           <DialogDescription>
-            Hours with appointments are shown but remain available for booking.
+            {isOwner 
+              ? "View appointments for this date. This is a read-only view."
+              : "Click on any hour to book an appointment. Multiple appointments can be made for the same hour. Hours with existing appointments are shown in blue."}
           </DialogDescription>
         </DialogHeader>
 
@@ -174,17 +195,18 @@ export function OrganizationHoursDialog({
                   return (
                     <div
                       key={hour}
-                      className={`p-4 border rounded-md ${
+                      className={`h-auto p-4 flex flex-col items-start justify-start border rounded-md ${
                         hasAppointments
                           ? "bg-blue-50 border-blue-200"
                           : "bg-green-50 border-green-200"
-                      }`}
+                      } ${isOwner ? "cursor-default" : "cursor-pointer"}`}
+                      onClick={() => !isOwner && handleHourClick(hour)}
                     >
-                      <div className="font-semibold text-sm mb-2">
+                      <div className="font-semibold text-sm mb-2 w-full text-left">
                         {dayjs(`2000-01-01 ${hour}`).format("h:mm A")}
                       </div>
                       {hasAppointments && (
-                        <div className="mt-2 space-y-1">
+                        <div className="mt-2 space-y-1 w-full">
                           <div className="text-xs font-medium text-muted-foreground">
                             Appointments ({hourAppointments.length}):
                           </div>
@@ -204,11 +226,21 @@ export function OrganizationHoursDialog({
                               </div>
                             </div>
                           ))}
+                          {!isOwner && (
+                            <div className="text-xs text-blue-700 mt-2 font-medium">
+                              Click to add more
+                            </div>
+                          )}
                         </div>
                       )}
-                      {!hasAppointments && (
+                      {!hasAppointments && !isOwner && (
                         <div className="text-xs text-green-700 mt-2">
-                          Available
+                          Click to book
+                        </div>
+                      )}
+                      {!hasAppointments && isOwner && (
+                        <div className="text-xs text-muted-foreground mt-2">
+                          No appointments
                         </div>
                       )}
                     </div>
@@ -219,6 +251,23 @@ export function OrganizationHoursDialog({
           </div>
         )}
       </DialogContent>
+
+      {/* Create Appointment Dialog */}
+      {organizationId && date && selectedHour && (
+        <CreateAppointmentDialog
+          organizationId={organizationId}
+          date={date}
+          hour={selectedHour}
+          open={showCreateDialog}
+          onOpenChange={(open) => {
+            setShowCreateDialog(open);
+            if (!open) {
+              setSelectedHour(null);
+            }
+          }}
+          onSuccess={handleAppointmentCreated}
+        />
+      )}
     </Dialog>
   );
 }

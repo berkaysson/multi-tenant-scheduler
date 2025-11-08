@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getOrganization } from "@/actions/get-organization";
+import { checkOrganizationOwnership } from "@/actions/check-organization-ownership";
 import {
   Dialog,
   DialogContent,
@@ -46,10 +47,12 @@ export function OrganizationCalendarDialog({
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showHoursDialog, setShowHoursDialog] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (open && organizationId) {
       fetchOrganizationData();
+      checkOwnership();
     }
   }, [open, organizationId]);
 
@@ -67,6 +70,20 @@ export function OrganizationCalendarDialog({
       console.error("Error fetching organization data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkOwnership = async () => {
+    if (!organizationId) return;
+    
+    try {
+      const result = await checkOrganizationOwnership(organizationId);
+      if (result.success) {
+        setIsOwner(result.isOwner);
+      }
+    } catch (error) {
+      console.error("Error checking organization ownership:", error);
+      setIsOwner(false);
     }
   };
 
@@ -158,7 +175,8 @@ export function OrganizationCalendarDialog({
     const status = getDayStatus(date);
     const isCurrentMonth = date.month() === currentMonth.month();
 
-    // Only handle clicks on available days in current month
+    // Allow clicks on available days in current month (both owners and non-owners can view)
+    // Owners will see read-only view, non-owners can book
     if (isCurrentMonth && status.available && organizationId) {
       setSelectedDate(dateKey);
       setShowHoursDialog(true);
@@ -172,7 +190,9 @@ export function OrganizationCalendarDialog({
           <DialogHeader>
             <DialogTitle>Availability Calendar - {organizationName}</DialogTitle>
             <DialogDescription>
-              Green indicates available dates, red indicates unavailable dates. Click on green dates to see hourly availability. Hover over red dates to see reasons.
+              {isOwner 
+                ? "View your organization's calendar and appointments. This is a read-only view."
+                : "Green indicates available dates, red indicates unavailable dates. Click on green dates to see hourly availability. Hover over red dates to see reasons."}
             </DialogDescription>
           </DialogHeader>
 
@@ -309,6 +329,7 @@ export function OrganizationCalendarDialog({
         date={selectedDate}
         weeklyAvailability={weeklyAvailability}
         organizationId={organizationId}
+        isOwner={isOwner}
         open={showHoursDialog}
         onOpenChange={setShowHoursDialog}
       />
