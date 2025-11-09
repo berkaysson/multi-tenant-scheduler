@@ -6,10 +6,12 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   return (
     <SessionProvider session={session}>
-      <div className="min-h-screen flex flex-col">
+      <div className="relative flex min-h-screen flex-col bg-background">
         <ProtectedNavigation />
-        <main className="flex-grow">
-          {children}
+        <main className="flex-1">
+          <div className="container py-8">
+            {children}
+          </div>
         </main>
       </div>
     </SessionProvider>

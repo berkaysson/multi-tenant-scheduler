@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@prisma/client";
+import { Menu, Building2 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { UserNav } from "@/components/navigation/UserNav";
 
 const ProtectedNavigation = () => {
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session } = useSession();
   const userRole = session?.user?.role as UserRole | undefined;
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   const navItems = [
     { name: "Organizations", href: "/organizations" },
@@ -23,88 +27,97 @@ const ProtectedNavigation = () => {
     ...(userRole === UserRole.MANAGER || userRole === UserRole.ADMIN
       ? [{ name: "My Organization", href: "/manager/organization" }]
       : []),
-    { name: "Settings", href: "/settings" },
   ];
 
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Link
+      href={href}
+      className={cn(
+        "text-sm font-medium transition-colors hover:text-primary",
+        pathname === href ? "text-foreground" : "text-muted-foreground"
+      )}
+    >
+      {children}
+    </Link>
+  );
+
+  const MobileNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <SheetClose asChild>
+      <Link
+        href={href}
+        className={cn(
+          "block select-none rounded-md p-3 text-base font-medium leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+          pathname === href ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+        )}
+      >
+        {children}
+      </Link>
+    </SheetClose>
+  );
+
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/organizations" className="text-xl font-bold">
-                App Logo
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    pathname === item.href
-                      ? "border-indigo-500 text-gray-900"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-6">
+          {/* Mobile Nav Trigger */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex flex-col">
+                <div className="flex-grow">
+                  <Link href="/organizations" className="flex items-center space-x-2">
+                    <Building2 className="h-6 w-6" />
+                    <span className="font-bold">App Name</span>
+                  </Link>
+                  <Separator className="my-4" />
+                  <div className="flex flex-col space-y-2">
+                    {navItems.map((item) => (
+                      <MobileNavLink key={item.name} href={item.href}>
+                        {item.name}
+                      </MobileNavLink>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-auto">
+                  <SheetClose asChild>
+                    <Button asChild className="w-full">
+                      <Link href="/organizations/create">Create Organization</Link>
+                    </Button>
+                  </SheetClose>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-          <div className="hidden sm:flex sm:items-center">
-            <Link
-              href="/organizations/create"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Create Organization
-            </Link>
+
+          {/* Desktop Nav */}
+          <Link href="/organizations" className="hidden items-center space-x-2 md:flex">
+            <Building2 className="h-6 w-6" />
+            <span className="font-bold">App Name</span>
+          </Link>
+          <nav className="hidden items-center gap-6 md:flex">
+            {navItems.map((item) => (
+              <NavLink key={item.name} href={item.href}>
+                {item.name}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="hidden md:block">
+            <Button asChild>
+              <Link href="/organizations/create">Create Organization</Link>
+            </Button>
           </div>
-          <div className="flex items-center sm:hidden">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-            >
-              <span className="sr-only">Open main menu</span>
-              {isMenuOpen ? (
-                <X className="block h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Menu className="block h-6 w-6" aria-hidden="true" />
-              )}
-            </button>
-          </div>
+          <UserNav />
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="sm:hidden">
-          <div className="pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  pathname === item.href
-                    ? "bg-indigo-50 border-indigo-500 text-indigo-700"
-                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <Link
-              href="/organizations/create"
-              className="block pl-3 pr-4 py-2 mt-2 border-l-4 border-transparent text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Create Organization
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
+    </header>
   );
 };
 
