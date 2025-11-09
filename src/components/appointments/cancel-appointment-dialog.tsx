@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { cancelAppointment } from "@/actions/cancel-appointment";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface CancelAppointmentDialogProps {
   appointmentId: string;
@@ -37,7 +37,6 @@ export function CancelAppointmentDialog({
 
   const handleCancel = async () => {
     setLoading(true);
-
     try {
       const result = await cancelAppointment(
         appointmentId,
@@ -46,7 +45,6 @@ export function CancelAppointmentDialog({
 
       if (result.success) {
         toast.success(result.message);
-        setCancellationReason("");
         onOpenChange(false);
         if (onSuccess) {
           onSuccess();
@@ -59,56 +57,52 @@ export function CancelAppointmentDialog({
       toast.error("Something went wrong!");
     } finally {
       setLoading(false);
+      setCancellationReason("");
     }
   };
 
+  const handleClose = () => {
+    if (loading) return;
+    setCancellationReason("");
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Cancel Appointment</DialogTitle>
           <DialogDescription>
-            Are you sure you want to cancel this appointment? This action cannot be undone.
+            This action cannot be undone. Please confirm you want to cancel.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div>
-            <p className="text-sm font-medium mb-2">Appointment:</p>
-            <p className="text-sm text-gray-600">{appointmentTitle}</p>
+        <div className="space-y-4 py-2">
+          <div className="rounded-md border bg-muted/50 p-3">
+            <p className="text-sm font-medium text-muted-foreground">
+              You are about to cancel:
+            </p>
+            <p className="font-semibold text-foreground">{appointmentTitle}</p>
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="cancellation-reason"
-              className="text-sm font-medium"
-            >
+            <Label htmlFor="cancellation-reason">
               Cancellation Notes (Optional)
-            </label>
+            </Label>
             <Textarea
               id="cancellation-reason"
-              placeholder="Please provide a reason for cancellation (optional)"
+              placeholder="Provide a reason for cancellation..."
               value={cancellationReason}
               onChange={(e) => setCancellationReason(e.target.value)}
-              rows={4}
+              rows={3}
               className="resize-none"
             />
-            <p className="text-xs text-gray-500">
-              You can provide a reason for cancellation to help the organization.
-            </p>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setCancellationReason("");
-              onOpenChange(false);
-            }}
-            disabled={loading}
-          >
-            Keep Appointment
+        <DialogFooter className="sm:justify-between">
+          <Button variant="outline" onClick={handleClose} disabled={loading}>
+            Go Back
           </Button>
           <Button
             variant="destructive"
@@ -116,11 +110,10 @@ export function CancelAppointmentDialog({
             disabled={loading}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Cancel Appointment
+            Confirm Cancellation
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
