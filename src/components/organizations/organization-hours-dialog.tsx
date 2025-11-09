@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarX2 } from "lucide-react";
 import dayjs from "dayjs";
 import { CreateAppointmentDialog } from "./create-appointment-dialog";
 
@@ -85,31 +85,21 @@ export function OrganizationHoursDialog({
     }
   };
 
-  // Get day of week index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const getDayOfWeekIndex = (dayOfWeek: string): number => {
     const dayMap: { [key: string]: number } = {
-      SUNDAY: 0,
-      MONDAY: 1,
-      TUESDAY: 2,
-      WEDNESDAY: 3,
-      THURSDAY: 4,
-      FRIDAY: 5,
-      SATURDAY: 6,
+      SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, FRIDAY: 5, SATURDAY: 6,
     };
     return dayMap[dayOfWeek] ?? -1;
   };
 
-  // Generate hours based on weekly availability
   const generateHoursForDate = (dateStr: string): string[] => {
-    const date = dayjs(dateStr);
-    const dayIndex = date.day(); // 0 = Sunday, 1 = Monday, etc.
+    const dateObj = dayjs(dateStr);
+    const dayIndex = dateObj.day();
     const availability = weeklyAvailability.find(
       (avail) => getDayOfWeekIndex(avail.dayOfWeek) === dayIndex
     );
 
-    if (!availability) {
-      return [];
-    }
+    if (!availability) return [];
 
     const hours: string[] = [];
     const [startHour, startMinute] = availability.startTime.split(':').map(Number);
@@ -119,7 +109,7 @@ export function OrganizationHoursDialog({
     const end = dayjs().hour(endHour).minute(endMinute);
 
     let current = start;
-    while (current.isBefore(end) || current.isSame(end)) {
+    while (current.isBefore(end)) {
       hours.push(current.format("HH:mm"));
       current = current.add(1, "hour");
     }
@@ -127,64 +117,58 @@ export function OrganizationHoursDialog({
     return hours;
   };
 
-  // Get appointments for a specific hour
   const getAppointmentsForHour = (hour: string): Appointment[] => {
     if (!date) return [];
-
     const [hourNum, minuteNum] = hour.split(':').map(Number);
     const hourStart = dayjs(date).hour(hourNum).minute(minuteNum);
     const hourEnd = hourStart.add(1, "hour");
 
     return appointments.filter((apt) => {
       const aptStart = dayjs(apt.startTime);
-      // Check if appointment starts during this hour or overlaps with it
       return (aptStart.isAfter(hourStart) || aptStart.isSame(hourStart)) && aptStart.isBefore(hourEnd);
     });
   };
 
   const handleHourClick = (hour: string) => {
-    // If user owns the organization, don't allow booking (read-only view)
-    if (isOwner) return;
-    
-    if (!organizationId || !date) return;
+    if (isOwner || !organizationId || !date) return;
     setSelectedHour(hour);
     setShowCreateDialog(true);
   };
 
   const handleAppointmentCreated = () => {
-    // Refresh appointments after creation
     fetchAppointments();
   };
 
-  if (!date) {
-    return null;
-  }
+  if (!date) return null;
 
   const hours = generateHoursForDate(date);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isOwner ? "Appointments" : "Available Hours"} - {dayjs(date).format("MMMM D, YYYY")}
-          </DialogTitle>
-          <DialogDescription>
-            {isOwner 
-              ? "View appointments for this date. This is a read-only view."
-              : "Click on any hour to book an appointment. Multiple appointments can be made for the same hour. Hours with existing appointments are shown in blue."}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>
+              {isOwner ? "Appointments" : "Available Hours"} for {dayjs(date).format("MMMM D, YYYY")}
+            </DialogTitle>
+            <DialogDescription>
+              {isOwner
+                ? "View all appointments for this date. This is a read-only view."
+                : "Click on an available time slot to book an appointment."}
+            </DialogDescription>
+          </DialogHeader>
 
-        {hours.length === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">
-            No availability hours configured for this day.
-          </div>
-        ) : (
-          <div className="mt-4">
+          <div className="flex-grow overflow-y-auto pr-2 -mr-2">
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                <p>Loading schedule...</p>
+              </div>
+            ) : hours.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <CalendarX2 className="h-12 w-12 mb-4" />
+                <p className="font-semibold">No Availability</p>
+                <p className="text-sm">No hours are configured for this day.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -195,64 +179,63 @@ export function OrganizationHoursDialog({
                   return (
                     <div
                       key={hour}
-                      className={`h-auto p-4 flex flex-col items-start justify-start border rounded-md ${
-                        hasAppointments
-                          ? "bg-blue-50 border-blue-200"
-                          : "bg-green-50 border-green-200"
-                      } ${isOwner ? "cursor-default" : "cursor-pointer"}`}
-                      onClick={() => !isOwner && handleHourClick(hour)}
+                      onClick={() => handleHourClick(hour)}
+                      onKeyDown={(e) => !isOwner && (e.key === 'Enter' || e.key === ' ') && handleHourClick(hour)}
+                      tabIndex={isOwner ? -1 : 0}
+                      className={`
+                        p-3 flex flex-col items-start justify-between rounded-lg border transition-all duration-200
+                        ${isOwner
+                          ? 'cursor-default'
+                          : 'cursor-pointer hover:bg-accent hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+                        }
+                        ${hasAppointments
+                          ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30'
+                          : 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700/30'
+                        }
+                      `}
                     >
-                      <div className="font-semibold text-sm mb-2 w-full text-left">
+                      <div className="font-bold text-base text-foreground mb-2">
                         {dayjs(`2000-01-01 ${hour}`).format("h:mm A")}
                       </div>
-                      {hasAppointments && (
-                        <div className="mt-2 space-y-1 w-full">
-                          <div className="text-xs font-medium text-muted-foreground">
-                            Appointments ({hourAppointments.length}):
-                          </div>
-                          {hourAppointments.map((apt) => (
-                            <div
-                              key={apt.id}
-                              className="text-xs p-2 bg-white rounded border"
-                            >
-                              <div className="font-medium">{apt.title}</div>
-                              {apt.appointmentType && (
-                                <div className="text-muted-foreground">
-                                  {apt.appointmentType.name}
+
+                      <div className="w-full mt-auto">
+                        {isOwner ? (
+                          hasAppointments ? (
+                            <div className="space-y-1.5">
+                              {hourAppointments.map(apt => (
+                                <div key={apt.id} className="text-xs p-1.5 bg-background/70 rounded border">
+                                  <div className="font-semibold text-foreground truncate">{apt.title}</div>
+                                  {apt.appointmentType && <div className="text-muted-foreground text-[11px] truncate">{apt.appointmentType.name}</div>}
+                                  <div className="text-muted-foreground text-[11px] mt-0.5 truncate">{apt.user.name || apt.user.email}</div>
                                 </div>
-                              )}
-                              <div className="text-muted-foreground">
-                                {apt.user.name || apt.user.email}
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                          {!isOwner && (
-                            <div className="text-xs text-blue-700 mt-2 font-medium">
-                              Click to add more
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {!hasAppointments && !isOwner && (
-                        <div className="text-xs text-green-700 mt-2">
-                          Click to book
-                        </div>
-                      )}
-                      {!hasAppointments && isOwner && (
-                        <div className="text-xs text-muted-foreground mt-2">
-                          No appointments
-                        </div>
-                      )}
+                          ) : <p className="text-sm text-muted-foreground">No appointments</p>
+                        ) : (
+                          <div className="text-sm">
+                            {hasAppointments ? (
+                              <>
+                                <p className="font-semibold text-blue-800 dark:text-blue-300">{hourAppointments.length} Appointment(s)</p>
+                                <p className="text-xs text-muted-foreground mt-1">Click to book another</p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="font-semibold text-green-800 dark:text-green-300">Available</p>
+                                <p className="text-xs text-muted-foreground mt-1">Click to book</p>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             )}
           </div>
-        )}
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
 
-      {/* Create Appointment Dialog */}
       {organizationId && date && selectedHour && (
         <CreateAppointmentDialog
           organizationId={organizationId}
@@ -261,14 +244,11 @@ export function OrganizationHoursDialog({
           open={showCreateDialog}
           onOpenChange={(open) => {
             setShowCreateDialog(open);
-            if (!open) {
-              setSelectedHour(null);
-            }
+            if (!open) setSelectedHour(null);
           }}
           onSuccess={handleAppointmentCreated}
         />
       )}
-    </Dialog>
+    </>
   );
 }
-

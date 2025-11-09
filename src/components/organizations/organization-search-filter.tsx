@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 
 interface OrganizationSearchFilterProps {
   searchQuery: string;
@@ -38,80 +38,83 @@ export function OrganizationSearchFilter({
   onShowAllMap,
 }: OrganizationSearchFilterProps) {
   return (
-    <Card className="mb-6">
+    <Card className="mb-8">
       <CardHeader>
-        <CardTitle>Search & Filter</CardTitle>
+        <CardTitle>Search & Filter Organizations</CardTitle>
         <CardDescription>
-          Search organizations by name, city, country, or description
+          Find organizations by name, city, country, or description.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onShowAllMap}
-            className="gap-2"
-          >
-            <MapPin className="h-4 w-4" />
-            See in Map
-          </Button>
-        </div>
-        <form onSubmit={onSearch} className="flex gap-4 flex-wrap">
-          <Input
-            type="text"
-            placeholder="Search organizations..."
-            value={searchQuery}
-            onChange={(e) => onSearchQueryChange(e.target.value)}
-            className="flex-1 min-w-[200px]"
-          />
-          <Button type="submit" disabled={loading}>
-            {loading ? "Searching..." : "Search"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onReset}
-          >
-            Reset
-          </Button>
-        </form>
+        <form onSubmit={onSearch}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <Input
+              type="text"
+              placeholder="Search organizations..."
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange(e.target.value)}
+              className="lg:col-span-2"
+              disabled={loading}
+            />
+            <div className="flex items-center gap-2">
+              <label htmlFor="sortBy" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Sort by
+              </label>
+              <Select value={sortBy} onValueChange={onSortByChange} disabled={loading}>
+                <SelectTrigger id="sortBy" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="city">City</SelectItem>
+                  <SelectItem value="country">Country</SelectItem>
+                  <SelectItem value="createdAt">Created Date</SelectItem>
+                  <SelectItem value="appointments">Appointments</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="sortOrder" className="text-sm font-medium text-gray-700">
+                Order
+              </label>
+              <Select value={sortOrder} onValueChange={(value: "asc" | "desc") => onSortOrderChange(value)} disabled={loading}>
+                <SelectTrigger id="sortOrder" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">Descending</SelectItem>
+                  <SelectItem value="asc">Ascending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div className="mt-4 flex gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <label htmlFor="sortBy" className="text-sm font-medium text-gray-700">
-              Sort by:
-            </label>
-            <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger id="sortBy" className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="city">City</SelectItem>
-                <SelectItem value="country">Country</SelectItem>
-                <SelectItem value="createdAt">Created Date</SelectItem>
-                <SelectItem value="appointments">Appointments</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button type="submit" disabled={loading} className="flex-grow sm:flex-grow-0">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? "Searching..." : "Search"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onReset}
+              disabled={loading}
+              className="flex-grow sm:flex-grow-0"
+            >
+              Reset
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onShowAllMap}
+              className="gap-2 flex-grow sm:flex-grow-0 sm:ml-auto"
+            >
+              <MapPin className="h-4 w-4" />
+              View All on Map
+            </Button>
           </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sortOrder" className="text-sm font-medium text-gray-700">
-              Order:
-            </label>
-            <Select value={sortOrder} onValueChange={(value: "asc" | "desc") => onSortOrderChange(value)}>
-              <SelectTrigger id="sortOrder" className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="desc">Descending</SelectItem>
-                <SelectItem value="asc">Ascending</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );
 }
-

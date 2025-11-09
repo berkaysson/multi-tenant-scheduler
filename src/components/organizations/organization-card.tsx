@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Calendar, Mail, Phone, Building2 } from "lucide-react";
 import { Organization } from "./types";
 
 interface OrganizationCardProps {
@@ -13,54 +14,43 @@ interface OrganizationCardProps {
 
 export function OrganizationCard({ org, onShowMap, onShowCalendar }: OrganizationCardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className={`flex flex-col h-full transition-shadow duration-300 hover:shadow-xl ${!org.isActive ? 'bg-gray-50/50' : ''}`}>
       <CardHeader>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <CardTitle className="text-xl mb-2">{org.name}</CardTitle>
+            <CardTitle className="text-xl mb-1">{org.name}</CardTitle>
             {org.city && org.country && (
-              <CardDescription>
-                📍 {org.city}, {org.country}
+              <CardDescription className="flex items-center gap-1.5 text-sm">
+                <MapPin className="h-4 w-4" />
+                {org.city}, {org.country}
               </CardDescription>
             )}
           </div>
-          <div className="flex gap-2">
-            {org.isActive ? (
-              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                Active
-              </span>
-            ) : (
-              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
-                Inactive
-              </span>
-            )}
-            {org.isPublic ? (
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                Public
-              </span>
-            ) : (
-              <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
-                Private
-              </span>
-            )}
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <Badge variant={org.isActive ? "default" : "secondary"} className={org.isActive ? "bg-green-600 hover:bg-green-700" : ""}>
+              {org.isActive ? "Active" : "Inactive"}
+            </Badge>
+            <Badge variant={org.isPublic ? "outline" : "secondary"}>
+              {org.isPublic ? "Public" : "Private"}
+            </Badge>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col flex-grow">
         {org.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
             {org.description}
           </p>
         )}
-        
-        <div className="mb-4 flex gap-2">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {org.latitude && org.longitude && (
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => onShowMap(org)}
-              className={org.isActive ? "flex-1 gap-2" : "w-full gap-2"}
+              className="w-full gap-2"
             >
               <MapPin className="h-4 w-4" />
               Show in Map
@@ -72,57 +62,57 @@ export function OrganizationCard({ org, onShowMap, onShowCalendar }: Organizatio
               variant="outline"
               size="sm"
               onClick={() => onShowCalendar(org)}
-              className={`gap-2 ${org.latitude && org.longitude ? "flex-1" : "w-full"}`}
+              className="w-full gap-2"
             >
               <Calendar className="h-4 w-4" />
               View Calendar
             </Button>
           )}
         </div>
-        
-        <div className="space-y-2 mb-4">
+
+        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
           {org.email && (
-            <p className="text-xs text-gray-600">
-              ✉️ {org.email}
-            </p>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{org.email}</span>
+            </div>
           )}
           {org.phone && (
-            <p className="text-xs text-gray-600">
-              📞 {org.phone}
-            </p>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 flex-shrink-0" />
+              <span>{org.phone}</span>
+            </div>
           )}
           {org.address && (
-            <p className="text-xs text-gray-600">
-              📮 {org.address}
-            </p>
+            <div className="flex items-start gap-2">
+              <Building2 className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <span>{org.address}</span>
+            </div>
           )}
         </div>
 
-        <div className="border-t pt-3">
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+        <div className="border-t pt-4 mt-auto">
+          <div className="grid grid-cols-3 gap-2 text-center text-sm">
             <div>
-              <p className="font-semibold text-gray-800">{org._count.members}</p>
-              <p className="text-gray-600">Members</p>
+              <p className="font-bold text-foreground">{org._count.members}</p>
+              <p className="text-muted-foreground text-xs">Members</p>
             </div>
             <div>
-              <p className="font-semibold text-gray-800">{org._count.appointments}</p>
-              <p className="text-gray-600">Appointments</p>
+              <p className="font-bold text-foreground">{org._count.appointments}</p>
+              <p className="text-muted-foreground text-xs">Appointments</p>
             </div>
             <div>
-              <p className="font-semibold text-gray-800">{org._count.appointmentTypes}</p>
-              <p className="text-gray-600">Types</p>
+              <p className="font-bold text-foreground">{org._count.appointmentTypes}</p>
+              <p className="text-muted-foreground text-xs">Types</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-3 text-xs text-gray-500">
-          Created: {new Date(org.createdAt).toLocaleDateString()}
-        </div>
-        <div className="text-xs text-gray-500">
-          By: {org.createdBy.name || org.createdBy.email}
+        <div className="mt-4 pt-3 border-t text-xs text-muted-foreground">
+          <p>Created: {new Date(org.createdAt).toLocaleDateString()}</p>
+          <p className="truncate">By: {org.createdBy.name || org.createdBy.email}</p>
         </div>
       </CardContent>
     </Card>
   );
 }
-
