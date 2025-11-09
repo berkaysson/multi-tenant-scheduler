@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 
 import { createAppointmentType } from "@/actions/create-appointment-type";
 import { updateAppointmentType } from "@/actions/update-appointment-type";
@@ -26,6 +26,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Form,
   FormControl,
@@ -60,8 +71,8 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingType, setEditingType] = useState<AppointmentType | null>(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Update local state when initial appointment types change (from parent refetch)
   useEffect(() => {
     setAppointmentTypes(initialAppointmentTypes);
   }, [initialAppointmentTypes]);
@@ -90,7 +101,6 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
     },
   });
 
-  // Reset create form when dialog opens/closes
   useEffect(() => {
     if (!createDialogOpen) {
       createForm.reset({
@@ -104,7 +114,6 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
     }
   }, [createDialogOpen, organizationId, createForm]);
 
-  // Set update form values when editing
   useEffect(() => {
     if (editingType) {
       updateForm.reset({
@@ -125,8 +134,6 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       if (result.success) {
         toast.success(result.message);
         setCreateDialogOpen(false);
-        router.refresh();
-        // Update local state
         if (result.appointmentType) {
           setAppointmentTypes([result.appointmentType, ...appointmentTypes]);
         }
@@ -136,7 +143,6 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       }
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -154,8 +160,6 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       if (result.success) {
         toast.success(result.message);
         setEditingType(null);
-        router.refresh();
-        // Update local state
         setAppointmentTypes(appointmentTypes.map((type) =>
           type.id === editingType.id
             ? { ...type, ...data, id: type.id }
@@ -167,24 +171,17 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       }
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this appointment type?")) {
-      return;
-    }
-
-    setLoading(true);
+    setDeletingId(id);
     try {
       const result = await deleteAppointmentType(id);
       if (result.success) {
         toast.success(result.message);
-        router.refresh();
-        // Update local state
         setAppointmentTypes(appointmentTypes.filter((type) => type.id !== id));
         onUpdate?.();
       } else {
@@ -192,9 +189,8 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       }
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error(error);
     } finally {
-      setLoading(false);
+      setDeletingId(null);
     }
   };
 
@@ -339,7 +335,8 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                         Cancel
                       </Button>
                       <Button type="submit" disabled={loading}>
-                        {loading ? "Creating..." : "Create"}
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Create
                       </Button>
                     </DialogFooter>
                   </form>
@@ -350,8 +347,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
         </CardHeader>
         <CardContent>
           {appointmentTypes.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No appointment types yet. Create your first one!</p>
+            <div className="text-center py-8 text-muted-foreground rounded-lg bg-accent/50">
+              <Plus className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <p className="font-semibold">No appointment types yet</p>
+              <p className="text-sm">Create your first one to get started!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -363,7 +362,7 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                   <div className="flex items-center gap-4 flex-1">
                     {type.color && (
                       <div
-                        className="w-4 h-4 rounded-full"
+                        className="w-4 h-4 rounded-full flex-shrink-0"
                         style={{ backgroundColor: type.color }}
                       />
                     )}
@@ -384,15 +383,17 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Dialog open={editingType?.id === type.id} onOpenChange={(open) => !open && setEditingType(null)}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(type)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(type)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
                       {editingType?.id === type.id && (
                         <DialogContent>
                           <DialogHeader>
@@ -509,7 +510,8 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                   Cancel
                                 </Button>
                                 <Button type="submit" disabled={loading}>
-                                  {loading ? "Updating..." : "Update"}
+                                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  Update
                                 </Button>
                               </DialogFooter>
                             </form>
@@ -517,14 +519,35 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                         </DialogContent>
                       )}
                     </Dialog>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(type.id)}
-                      disabled={loading}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={deletingId === type.id}
+                        >
+                          {deletingId === type.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          )}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the appointment type "{type.name}".
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(type.id)}>
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
@@ -535,4 +558,3 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
     </>
   );
 }
-

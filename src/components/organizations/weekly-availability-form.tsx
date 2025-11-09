@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import { DayOfWeek } from "@prisma/client";
 
 import { createWeeklyAvailability } from "@/actions/create-weekly-availability";
@@ -59,7 +59,6 @@ const FormSchema = z.object({
       enabled: z.boolean(),
     }).refine(
       (data) => {
-        // Only validate time order if the day is enabled
         if (!data.enabled) return true;
         const [startHour, startMin] = data.startTime.split(":").map(Number);
         const [endHour, endMin] = data.endTime.split(":").map(Number);
@@ -84,7 +83,6 @@ export function WeeklyAvailabilityForm({
 }: WeeklyAvailabilityFormProps) {
   const [loading, setLoading] = useState(false);
 
-  // Create a map of existing availability by day
   const availabilityMap = new Map<DayOfWeek, WeeklyAvailability>();
   initialWeeklyAvailability.forEach((avail) => {
     availabilityMap.set(avail.dayOfWeek, avail);
@@ -108,7 +106,6 @@ export function WeeklyAvailabilityForm({
   const onSubmit = async (data: FormData) => {
     setLoading(true);
 
-    // Filter to only enabled days and format for API
     const enabledAvailabilities = data.availabilities
       .filter((avail) => avail.enabled)
       .map(({ enabled, ...rest }) => rest);
@@ -142,13 +139,13 @@ export function WeeklyAvailabilityForm({
               {DAYS_OF_WEEK.map((day, index) => (
                 <div
                   key={day.value}
-                  className="flex items-center gap-4 p-4 border rounded-lg"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg"
                 >
                   <FormField
                     control={form.control}
                     name={`availabilities.${index}.enabled`}
                     render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2 space-y-0 min-w-[120px]">
+                      <FormItem className="flex items-center space-x-2 space-y-0 w-full sm:w-auto sm:min-w-[120px]">
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -162,13 +159,13 @@ export function WeeklyAvailabilityForm({
                     )}
                   />
 
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1 w-full flex-col sm:flex-row">
                     <FormField
                       control={form.control}
                       name={`availabilities.${index}.startTime`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
-                          <FormLabel>Start Time</FormLabel>
+                          <FormLabel className="text-xs">Start Time</FormLabel>
                           <FormControl>
                             <Input
                               type="time"
@@ -181,14 +178,14 @@ export function WeeklyAvailabilityForm({
                       )}
                     />
 
-                    <span className="pt-7">-</span>
+                    <span className="pt-5">-</span>
 
                     <FormField
                       control={form.control}
                       name={`availabilities.${index}.endTime`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
-                          <FormLabel>End Time</FormLabel>
+                          <FormLabel className="text-xs">End Time</FormLabel>
                           <FormControl>
                             <Input
                               type="time"
@@ -205,17 +202,13 @@ export function WeeklyAvailabilityForm({
               ))}
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full">
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? (
-                <>
-                  <span className="mr-2">Saving...</span>
-                </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Availability
-                </>
+                <Save className="mr-2 h-4 w-4" />
               )}
+              Save Availability
             </Button>
           </form>
         </Form>
@@ -223,4 +216,3 @@ export function WeeklyAvailabilityForm({
     </Card>
   );
 }
-

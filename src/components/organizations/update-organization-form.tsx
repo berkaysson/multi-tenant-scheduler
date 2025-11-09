@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 import { updateOrganization } from "@/actions/update-organization";
 import { UpdateOrganizationSchema } from "@/schemas";
@@ -75,11 +76,9 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
     },
   });
 
-  // Watch latitude and longitude for LocationPicker
   const latitude = form.watch("latitude");
   const longitude = form.watch("longitude");
 
-  // Reset form when organization changes
   useEffect(() => {
     form.reset({
       id: organization.id,
@@ -116,7 +115,6 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
       }
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -125,147 +123,49 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Update Organization Details</CardTitle>
+        <CardTitle>Organization Details</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Organization Name*</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter organization name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug*</FormLabel>
+                      <FormControl>
+                        <Input placeholder="organization-slug" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="name"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Organization Name*</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter organization name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug*</FormLabel>
-                    <FormControl>
-                      <Input placeholder="organization-slug" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea rows={4} placeholder="Enter organization description" {...field} value={field.value || ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="contact@organization.com" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+1234567890" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="website"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://organization.com" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="logo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://organization.com/logo.png" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="123 Main St" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input placeholder="New York" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Input placeholder="USA" {...field} value={field.value || ""} />
+                      <Textarea rows={4} placeholder="Enter organization description" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -274,10 +174,110 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
             </div>
 
             <div className="space-y-4">
+              <h3 className="text-lg font-medium">Contact & Branding</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="contact@organization.com" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+1234567890" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="website"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://organization.com" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="logo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logo URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://organization.com/logo.png" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Location</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Main St" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="New York" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input placeholder="USA" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="space-y-2">
-                <FormLabel>Location</FormLabel>
+                <FormLabel>Map Location</FormLabel>
                 <LocationPicker
-                  center={latitude && longitude ? [latitude, longitude] : [41.0082, 28.9784]} // Default to Istanbul
+                  center={latitude && longitude ? [latitude, longitude] : [41.0082, 28.9784]}
                   zoom={13}
                   height="400px"
                   initialLocation={latitude && longitude ? [latitude, longitude] : undefined}
@@ -287,10 +287,9 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                   }}
                 />
                 <FormDescription>
-                  Click on the map to select the organization location. This will automatically set the latitude and longitude.
+                  Click on the map to select the organization location.
                 </FormDescription>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -341,42 +340,46 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
-              <FormField
-                control={form.control}
-                name="isActive"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">Active</FormLabel>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isPublic"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
-                      />
-                    </FormControl>
-                    <FormLabel className="!mt-0">Public</FormLabel>
-                  </FormItem>
-                )}
-              />
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Settings</h3>
+              <div className="flex items-center gap-6">
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                        />
+                      </FormControl>
+                      <FormLabel className="!mt-0">Active</FormLabel>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isPublic"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                        />
+                      </FormControl>
+                      <FormLabel className="!mt-0">Public</FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={loading}>
-                {loading ? "Updating..." : "Update Organization"}
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Update Organization
               </Button>
             </div>
           </form>
@@ -385,4 +388,3 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
     </Card>
   );
 }
-

@@ -5,14 +5,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Plus, Trash2, Calendar } from "lucide-react";
+import { Plus, Trash2, Calendar, Loader2 } from "lucide-react";
 
 import { createUnavailableDate } from "@/actions/create-unavailable-date";
 import { deleteUnavailableDate } from "@/actions/delete-unavailable-date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -99,17 +98,16 @@ export function UnavailableDatesForm({
     }
   };
 
-  // Format date for display
   const formatDate = (date: Date | string) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
     return dateObj.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: 'UTC', // Ensure date is not shifted by timezone
     });
   };
 
-  // Filter out past dates for display (optional - you might want to keep past dates visible)
   const sortedDates = [...initialUnavailableDates].sort((a, b) => {
     const dateA = typeof a.date === "string" ? new Date(a.date) : a.date;
     const dateB = typeof b.date === "string" ? new Date(b.date) : b.date;
@@ -125,7 +123,6 @@ export function UnavailableDatesForm({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Create Form */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleCreate)}
@@ -166,29 +163,25 @@ export function UnavailableDatesForm({
 
             <Button type="submit" disabled={loading}>
               {loading ? (
-                <>
-                  <span className="mr-2">Adding...</span>
-                </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Unavailable Date
-                </>
+                <Plus className="mr-2 h-4 w-4" />
               )}
+              Add Unavailable Date
             </Button>
           </form>
         </Form>
 
-        {/* List of Unavailable Dates */}
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground">
             Scheduled Unavailable Dates
           </h3>
           {sortedDates.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No unavailable dates scheduled. Add dates when your organization
-              will be closed.
-            </p>
+            <div className="text-center py-8 text-muted-foreground rounded-lg bg-accent/50">
+              <Calendar className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <p className="font-semibold">No unavailable dates scheduled</p>
+              <p className="text-sm">Add dates when your organization will be closed.</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {sortedDates.map((unavailableDate) => (
@@ -208,17 +201,15 @@ export function UnavailableDatesForm({
                   </div>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => handleDelete(unavailableDate.id)}
                     disabled={deletingId === unavailableDate.id}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     {deletingId === unavailableDate.id ? (
-                      <span className="text-xs">Deleting...</span>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <>
-                        <Trash2 className="h-4 w-4" />
-                      </>
+                      <Trash2 className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
@@ -230,4 +221,3 @@ export function UnavailableDatesForm({
     </Card>
   );
 }
-

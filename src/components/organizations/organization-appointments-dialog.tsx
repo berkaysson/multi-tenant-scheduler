@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
-import { Calendar, Clock, X, CheckCircle2, XCircle, Loader2, CheckCheck } from "lucide-react";
+import { Calendar, Clock, X, CheckCircle2, XCircle, Loader2, CheckCheck, Info } from "lucide-react";
 
 import { getOrganizationAppointments } from "@/actions/get-organization-appointments";
 import { updateAppointmentStatus } from "@/actions/update-appointment-status";
@@ -98,7 +98,7 @@ export function OrganizationAppointmentsDialog({
         selectedDate || undefined,
         selectedHour || undefined
       );
-      
+
       if (result.success) {
         setAppointments(result.appointments || []);
         if (result.closestAppointment) {
@@ -253,24 +253,22 @@ export function OrganizationAppointmentsDialog({
     setSelectedHour("");
   };
 
-  // Display appointments - if no filters, show all but highlight closest
   const displayAppointments = appointments;
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md sm:max-w-3xl lg:max-w-5xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Appointments - {organizationName}</DialogTitle>
             <DialogDescription>
-              View and manage all appointments for your organization. Filter by date and hour, or view the closest upcoming appointment.
+              View and manage all appointments for your organization. Filter by date and hour.
             </DialogDescription>
           </DialogHeader>
 
-          {/* Filters */}
-          <div className="space-y-4 mt-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
+          <div className="space-y-4 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+              <div className="flex-1 w-full">
                 <label htmlFor="date-filter" className="text-sm font-medium mb-2 block">
                   <Calendar className="inline h-4 w-4 mr-2" />
                   Filter by Date
@@ -283,7 +281,7 @@ export function OrganizationAppointmentsDialog({
                   className="w-full"
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <label htmlFor="hour-filter" className="text-sm font-medium mb-2 block">
                   <Clock className="inline h-4 w-4 mr-2" />
                   Filter by Hour
@@ -306,21 +304,20 @@ export function OrganizationAppointmentsDialog({
                 </Select>
               </div>
               {(selectedDate || selectedHour) && (
-                <div className="flex items-end">
-                  <Button
-                    variant="outline"
-                    onClick={handleClearFilters}
-                    className="mb-0"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Clear Filters
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleClearFilters}
+                  className="w-full sm:w-auto"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear Filters
+                </Button>
               )}
             </div>
 
             {!selectedDate && !selectedHour && closestAppointment && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-3">
+                <Info className="h-5 w-5 text-blue-600" />
                 <p className="text-sm text-blue-800">
                   <strong>Closest upcoming appointment:</strong> {formatDateTime(closestAppointment.startTime)} - {closestAppointment.title}
                 </p>
@@ -328,159 +325,163 @@ export function OrganizationAppointmentsDialog({
             )}
           </div>
 
-          {/* Appointments List */}
-          <div className="mt-6">
+          <div className="mt-4 flex-1 overflow-y-auto -mx-6 px-6">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : displayAppointments.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                {selectedDate || selectedHour
-                  ? "No appointments found for the selected filters."
-                  : "No upcoming appointments found."}
+              <div className="text-center py-12 text-muted-foreground h-full flex flex-col items-center justify-center">
+                <Calendar className="h-12 w-12 mb-4 text-gray-400" />
+                <p className="font-semibold">
+                  {selectedDate || selectedHour
+                    ? "No appointments found"
+                    : "No upcoming appointments"}
+                </p>
+                <p className="text-sm">
+                  {selectedDate || selectedHour
+                    ? "Try adjusting your filters."
+                    : "There are no appointments scheduled."}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {displayAppointments.map((appointment) => {
                   const isClosest = !selectedDate && !selectedHour && closestAppointment?.id === appointment.id;
                   return (
-                  <Card key={appointment.id} className={isClosest ? "border-blue-300 border-2" : ""}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold">{appointment.title}</h3>
-                            {isClosest && (
-                              <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                Closest
+                    <Card key={appointment.id} className={isClosest ? "border-blue-400 border-2" : ""}>
+                      <CardContent className="p-4">
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2 flex-wrap">
+                              <h3 className="text-lg font-semibold">{appointment.title}</h3>
+                              {isClosest && (
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  Closest
+                                </span>
+                              )}
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                                {appointment.status}
                               </span>
-                            )}
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                              {appointment.status}
-                            </span>
-                          </div>
-
-                          {appointment.description && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {appointment.description}
-                            </p>
-                          )}
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                            <div>
-                              <span className="font-medium">Date & Time:</span>{" "}
-                              {formatDateTime(appointment.startTime)} - {formatTime(appointment.endTime)}
-                            </div>
-                            
-                            {appointment.appointmentType && (
-                              <div>
-                                <span className="font-medium">Type:</span>{" "}
-                                {appointment.appointmentType.name}
-                              </div>
-                            )}
-
-                            <div>
-                              <span className="font-medium">Client:</span>{" "}
-                              {appointment.user.name || appointment.user.email}
                             </div>
 
-                            {appointment.contactName && (
+                            {appointment.description && (
+                              <p className="text-sm text-muted-foreground mb-3">
+                                {appointment.description}
+                              </p>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                              <div className="col-span-1 sm:col-span-2">
+                                <span className="font-medium">Date & Time:</span>{" "}
+                                {formatDateTime(appointment.startTime)} - {formatTime(appointment.endTime)}
+                              </div>
+
+                              {appointment.appointmentType && (
+                                <div>
+                                  <span className="font-medium">Type:</span>{" "}
+                                  {appointment.appointmentType.name}
+                                </div>
+                              )}
+
                               <div>
-                                <span className="font-medium">Contact Name:</span>{" "}
-                                {appointment.contactName}
+                                <span className="font-medium">Client:</span>{" "}
+                                {appointment.user.name || appointment.user.email}
                               </div>
-                            )}
 
-                            {appointment.contactEmail && (
-                              <div>
-                                <span className="font-medium">Email:</span>{" "}
-                                {appointment.contactEmail}
-                              </div>
-                            )}
+                              {appointment.contactName && (
+                                <div>
+                                  <span className="font-medium">Contact Name:</span>{" "}
+                                  {appointment.contactName}
+                                </div>
+                              )}
 
-                            {appointment.contactPhone && (
-                              <div>
-                                <span className="font-medium">Phone:</span>{" "}
-                                {appointment.contactPhone}
-                              </div>
-                            )}
+                              {appointment.contactEmail && (
+                                <div>
+                                  <span className="font-medium">Email:</span>{" "}
+                                  {appointment.contactEmail}
+                                </div>
+                              )}
 
-                            {appointment.notes && (
-                              <div className="md:col-span-2">
-                                <span className="font-medium">Notes:</span>{" "}
-                                {appointment.notes}
-                              </div>
-                            )}
+                              {appointment.contactPhone && (
+                                <div>
+                                  <span className="font-medium">Phone:</span>{" "}
+                                  {appointment.contactPhone}
+                                </div>
+                              )}
 
-                            {appointment.cancellationReason && (
-                              <div className="md:col-span-2">
-                                <span className="font-medium text-red-600">Cancellation Reason:</span>{" "}
-                                <span className="text-red-600">{appointment.cancellationReason}</span>
-                              </div>
-                            )}
+                              {appointment.notes && (
+                                <div className="sm:col-span-2">
+                                  <span className="font-medium">Notes:</span>{" "}
+                                  {appointment.notes}
+                                </div>
+                              )}
+
+                              {appointment.cancellationReason && (
+                                <div className="sm:col-span-2">
+                                  <span className="font-medium text-red-600">Cancellation Reason:</span>{" "}
+                                  <span className="text-red-600">{appointment.cancellationReason}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="flex flex-col gap-2 ml-4">
-                          {appointment.status !== AppointmentStatus.CANCELLED &&
-                            appointment.status !== AppointmentStatus.COMPLETED && (
-                              <>
-                                {appointment.status === AppointmentStatus.PENDING && (
+                          <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto md:ml-4 pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-4">
+                            {appointment.status !== AppointmentStatus.CANCELLED &&
+                              appointment.status !== AppointmentStatus.COMPLETED && (
+                                <>
+                                  {appointment.status === AppointmentStatus.PENDING && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleConfirmClick(appointment)}
+                                      disabled={updatingStatus === appointment.id}
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full justify-start"
+                                    >
+                                      {updatingStatus === appointment.id ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      ) : (
+                                        <CheckCheck className="h-4 w-4 mr-2" />
+                                      )}
+                                      Confirm
+                                    </Button>
+                                  )}
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleConfirmClick(appointment)}
+                                    onClick={() => handleCancelClick(appointment)}
                                     disabled={updatingStatus === appointment.id}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full justify-start"
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCompleteClick(appointment)}
+                                    disabled={updatingStatus === appointment.id}
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50 w-full justify-start"
                                   >
                                     {updatingStatus === appointment.id ? (
                                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                     ) : (
-                                      <CheckCheck className="h-4 w-4 mr-2" />
+                                      <CheckCircle2 className="h-4 w-4 mr-2" />
                                     )}
-                                    Confirm
+                                    Complete
                                   </Button>
-                                )}
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleCancelClick(appointment)}
-                                  disabled={updatingStatus === appointment.id}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <XCircle className="h-4 w-4 mr-2" />
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleCompleteClick(appointment)}
-                                  disabled={updatingStatus === appointment.id}
-                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                >
-                                  {updatingStatus === appointment.id ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  ) : (
-                                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                                  )}
-                                  Complete
-                                </Button>
-                              </>
+                                </>
+                              )}
+                            {appointment.status === AppointmentStatus.CANCELLED && (
+                              <span className="text-sm text-muted-foreground">Cancelled</span>
                             )}
-                          {appointment.status === AppointmentStatus.CANCELLED && (
-                            <span className="text-sm text-muted-foreground">Cancelled</span>
-                          )}
-                          {appointment.status === AppointmentStatus.COMPLETED && (
-                            <span className="text-sm text-muted-foreground">Completed</span>
-                          )}
-                          {appointment.status === AppointmentStatus.CONFIRMED && (
-                            <span className="text-sm text-blue-600 font-medium">Confirmed</span>
-                          )}
+                            {appointment.status === AppointmentStatus.COMPLETED && (
+                              <span className="text-sm text-muted-foreground">Completed</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>
@@ -489,7 +490,6 @@ export function OrganizationAppointmentsDialog({
         </DialogContent>
       </Dialog>
 
-      {/* Cancel Appointment Dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -554,4 +554,3 @@ export function OrganizationAppointmentsDialog({
     </>
   );
 }
-
