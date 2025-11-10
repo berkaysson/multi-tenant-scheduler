@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@prisma/client";
-import { Menu, Building2 } from "lucide-react";
+import { Menu } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/navigation/UserNav";
 
@@ -71,8 +72,8 @@ const ProtectedNavigation = () => {
               <SheetContent side="left" className="flex flex-col">
                 <div className="flex-grow">
                   <Link href="/organizations" className="flex items-center space-x-2">
-                    <Building2 className="h-6 w-6" />
-                    <span className="font-bold">App Name</span>
+                    <Logo width={40} height={40} />
+                    <span className="font-bold">SwiftBook</span>
                   </Link>
                   <Separator className="my-4" />
                   <div className="flex flex-col space-y-2">
@@ -96,8 +97,8 @@ const ProtectedNavigation = () => {
 
           {/* Desktop Nav */}
           <Link href="/organizations" className="hidden items-center space-x-2 md:flex">
-            <Building2 className="h-6 w-6" />
-            <span className="font-bold">App Name</span>
+            <Logo width={40} height={40} />
+            <span className="font-bold">SwiftBook</span>
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
             {navItems.map((item) => (
