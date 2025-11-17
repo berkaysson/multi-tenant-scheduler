@@ -2,7 +2,8 @@
 
 import { auth } from "@/auth";
 import db from "@/lib/db";
-import { AppointmentStatus } from "@prisma/client";
+import { AppointmentStatus, NotificationType } from "@prisma/client";
+import { createOrganizationNotifications } from "@/lib/notifications";
 
 /**
  * Cancels an appointment for the current user.
@@ -29,7 +30,23 @@ export const cancelAppointment = async (
       select: {
         id: true,
         userId: true,
+        organizationId: true,
         status: true,
+        title: true,
+        startTime: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -60,6 +77,26 @@ export const cancelAppointment = async (
         cancellationReason: cancellationReason || null,
       },
     });
+
+    // Send notifications to organization owner and members
+    const userName = appointment.user.name || appointment.user.email || "A user";
+    const formattedStartTime = appointment.startTime.toLocaleString();
+    const notificationTitle = "Appointment Cancelled";
+    const notificationMessage = `${userName} has cancelled the appointment "${appointment.title}" scheduled for ${formattedStartTime} in ${appointment.organization.name}.${cancellationReason ? ` Reason: ${cancellationReason}` : ""}`;
+
+    await createOrganizationNotifications(
+      appointment.organizationId,
+      appointment.id,
+      NotificationType.APPOINTMENT_CANCELLED,
+      notificationTitle,
+      notificationMessage,
+      {
+        appointmentTitle: appointment.title,
+        appointmentStartTime: appointment.startTime.toISOString(),
+        cancellationReason: cancellationReason || null,
+        userName: userName,
+      }
+    );
 
     return { success: true, message: "Appointment cancelled successfully!" };
   } catch (error) {

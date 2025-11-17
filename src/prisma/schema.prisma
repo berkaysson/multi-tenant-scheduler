@@ -37,6 +37,13 @@ enum DayOfWeek {
   SUNDAY
 }
 
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_UPDATED
+}
+
 // ============================================
 // AUTHENTICATION MODELS
 // ============================================
@@ -77,6 +84,7 @@ model User {
   organizationMembers  OrganizationMember[]
   appointments         Appointment[]
   createdOrganizations Organization[]       @relation("OrganizationCreator")
+  notifications        Notification[]
 
   @@index([email])
   @@map("users")
@@ -140,6 +148,7 @@ model Organization {
   unavailableDates   UnavailableDate[]
   appointments       Appointment[]
   appointmentTypes   AppointmentType[]
+  notifications      Notification[]
 
   @@index([slug])
   @@index([isActive, isPublic])
@@ -254,4 +263,35 @@ model Appointment {
   @@index([organizationId, status, startTime])
   @@index([startTime, endTime]) // For conflict checking
   @@map("appointments")
+}
+
+// ============================================
+// NOTIFICATION MODELS
+// ============================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  read      Boolean          @default(false)
+  
+  // Related appointment data (can be null if appointment is deleted)
+  appointmentId    String?  @map("appointment_id")
+  organizationId   String   @map("organization_id")
+  
+  // Additional data stored as JSON
+  metadata  Json?
+  
+  createdAt DateTime         @default(now()) @map("created_at")
+  readAt    DateTime?        @map("read_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+  @@index([organizationId])
+  @@index([appointmentId])
+  @@map("notifications")
 }

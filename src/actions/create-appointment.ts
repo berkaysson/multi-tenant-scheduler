@@ -3,8 +3,9 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { CreateAppointmentSchema } from "@/schemas";
-import { AppointmentStatus } from "@prisma/client";
+import { AppointmentStatus, NotificationType } from "@prisma/client";
 import { z } from "zod";
+import { createOrganizationNotifications } from "@/lib/notifications";
 
 /**
  * Creates a new appointment for an organization.
@@ -110,8 +111,34 @@ export const createAppointment = async (data: z.infer<typeof CreateAppointmentSc
             email: true,
           },
         },
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
+
+    // Send notifications to organization owner and members
+    const userName = appointment.user.name || appointment.user.email || "A user";
+    const formattedStartTime = startDateTime.toLocaleString();
+    const notificationTitle = "New Appointment Created";
+    const notificationMessage = `${userName} has created a new appointment "${title}" on ${formattedStartTime} in ${appointment.organization.name}.`;
+
+    await createOrganizationNotifications(
+      organizationId,
+      appointment.id,
+      NotificationType.APPOINTMENT_CREATED,
+      notificationTitle,
+      notificationMessage,
+      {
+        appointmentTitle: title,
+        appointmentStartTime: startDateTime.toISOString(),
+        appointmentEndTime: endDateTime.toISOString(),
+        userName: userName,
+      }
+    );
 
     return { success: true, message: "Appointment created successfully!", appointment };
   } catch (error) {

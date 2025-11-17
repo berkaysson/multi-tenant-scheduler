@@ -2,7 +2,8 @@
 
 import { auth } from "@/auth";
 import db from "@/lib/db";
-import { AppointmentStatus, UserRole } from "@prisma/client";
+import { AppointmentStatus, UserRole, NotificationType } from "@prisma/client";
+import { createUserNotification } from "@/lib/notifications";
 
 /**
  * Updates the status of an appointment.
@@ -29,11 +30,25 @@ export const updateAppointmentStatus = async (
     // Find the appointment with organization info
     const appointment = await db.appointment.findUnique({
       where: { id: appointmentId },
-      include: {
+      select: {
+        id: true,
+        userId: true,
+        organizationId: true,
+        title: true,
+        startTime: true,
+        status: true,
         organization: {
           select: {
             id: true,
+            name: true,
             createdById: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
           },
         },
       },
@@ -81,9 +96,56 @@ export const updateAppointmentStatus = async (
       where: { id: appointmentId },
       data: {
         status,
-        cancellationReason: status === AppointmentStatus.CANCELLED ? cancellationReason : appointment.cancellationReason,
+        cancellationReason: status === AppointmentStatus.CANCELLED ? cancellationReason : undefined,
       },
     });
+
+    // Send notifications when organization confirms or cancels an appointment
+    // Check if the update is done by organization (not by the appointment owner)
+    const isOrganizationUpdate = (isOwner || isAdmin) && !isAppointmentOwner;
+    
+    if (isOrganizationUpdate) {
+      if (status === AppointmentStatus.CONFIRMED) {
+        // Organization confirmed the appointment - notify the user
+        const formattedStartTime = appointment.startTime.toLocaleString();
+        const notificationTitle = "Appointment Confirmed";
+        const notificationMessage = `Your appointment "${appointment.title}" scheduled for ${formattedStartTime} in ${appointment.organization.name} has been confirmed.`;
+
+        await createUserNotification(
+          appointment.userId,
+          appointment.organizationId,
+          appointmentId,
+          NotificationType.APPOINTMENT_CONFIRMED,
+          notificationTitle,
+          notificationMessage,
+          {
+            appointmentTitle: appointment.title,
+            appointmentStartTime: appointment.startTime.toISOString(),
+            organizationName: appointment.organization.name,
+          }
+        );
+      } else if (status === AppointmentStatus.CANCELLED) {
+        // Organization cancelled the appointment - notify the user
+        const formattedStartTime = appointment.startTime.toLocaleString();
+        const notificationTitle = "Appointment Cancelled by Organization";
+        const notificationMessage = `Your appointment "${appointment.title}" scheduled for ${formattedStartTime} in ${appointment.organization.name} has been cancelled.${cancellationReason ? ` Reason: ${cancellationReason}` : ""}`;
+
+        await createUserNotification(
+          appointment.userId,
+          appointment.organizationId,
+          appointmentId,
+          NotificationType.APPOINTMENT_CANCELLED,
+          notificationTitle,
+          notificationMessage,
+          {
+            appointmentTitle: appointment.title,
+            appointmentStartTime: appointment.startTime.toISOString(),
+            cancellationReason: cancellationReason || null,
+            organizationName: appointment.organization.name,
+          }
+        );
+      }
+    }
 
     return { success: true, message: `Appointment ${status.toLowerCase()} successfully!` };
   } catch (error) {
