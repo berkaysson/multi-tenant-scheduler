@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/navigation/UserNav";
+import { NotificationBell } from "@/components/navigation/NotificationBell";
 
 const ProtectedNavigation = () => {
   const pathname = usePathname();
@@ -110,6 +111,7 @@ const ProtectedNavigation = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <NotificationBell />
           <div className="hidden md:block">
             <Button asChild>
               <Link href="/organizations/create">Create Organization</Link>
