@@ -170,7 +170,7 @@ export function NotificationBell() {
           <span className="sr-only">Notifications</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80" align="end" forceMount>
+      <DropdownMenuContent className="w-80 md:w-full" align="end" forceMount>
         <div className="flex items-center justify-between px-2 py-1.5">
           <DropdownMenuLabel>Notifications</DropdownMenuLabel>
           {unreadCount > 0 && (
@@ -248,7 +248,7 @@ export function NotificationBell() {
             ))
           )}
         </div>
-        {notifications.length > 0 && (
+        {/* {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -257,7 +257,7 @@ export function NotificationBell() {
               </a>
             </DropdownMenuItem>
           </>
-        )}
+        )} */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
