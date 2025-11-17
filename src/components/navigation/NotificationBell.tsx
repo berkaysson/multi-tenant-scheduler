@@ -19,8 +19,6 @@ import { getNotifications, getUnreadNotificationCount } from "@/actions/get-noti
 import { markNotificationRead, markAllNotificationsRead } from "@/actions/mark-notification-read";
 import { deleteNotification } from "@/actions/delete-notification";
 import { subscribeToNotifications } from "@/data/subscribe-notifications";
-import { getSessionToken } from "@/actions/get-session-token";
-import { authenticateSupabaseClient } from "@/lib/supabase";
 import { toast } from "sonner";
 
 interface Notification {
@@ -67,14 +65,10 @@ export function NotificationBell() {
 
   // Subscribe to real-time notifications
   useEffect(() => {
-    console.log("useEffect called");
     if (!session?.user?.id) {
-      console.log("No user ID");
       setLoading(false);
       return;
     }
-
-    console.log("Fetching initial notifications");
     // Fetch initial notifications
     fetchNotifications();
 
@@ -83,19 +77,10 @@ export function NotificationBell() {
 
     const setupSubscription = async () => {
       try {
-        // Get the session token for Supabase authentication
-        const tokenResult = await getSessionToken();
-        
-        if (tokenResult.success && tokenResult.token) {
-          // Authenticate the Supabase client with the token
-          await authenticateSupabaseClient(tokenResult.token);
-        }
-
         // Subscribe to real-time notification updates
         if (session.user.id) {
           unsubscribe = subscribeToNotifications(session.user.id, () => {
             // Refetch notifications on any change
-            console.log("Refetching notifications");
             fetchNotifications();
           });
         }

@@ -41,10 +41,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         // to add additional fields also update the next-auth.d.ts file like UserRole
         // for more info check next-auth.d.ts
       }
-      // Include the JWT token in the session for Supabase authentication
-      if (token) {
-        (session as any).accessToken = token;
-      }
+
       return session;
     },
     async jwt({ token }) {
