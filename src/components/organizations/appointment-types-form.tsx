@@ -65,9 +65,15 @@ interface AppointmentTypesFormProps {
   onUpdate?: () => void;
 }
 
-export function AppointmentTypesForm({ organizationId, appointmentTypes: initialAppointmentTypes, onUpdate }: AppointmentTypesFormProps) {
+export function AppointmentTypesForm({
+  organizationId,
+  appointmentTypes: initialAppointmentTypes,
+  onUpdate,
+}: AppointmentTypesFormProps) {
   const router = useRouter();
-  const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>(initialAppointmentTypes);
+  const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>(
+    initialAppointmentTypes
+  );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingType, setEditingType] = useState<AppointmentType | null>(null);
   const [loading, setLoading] = useState(false);
@@ -160,11 +166,13 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
       if (result.success) {
         toast.success(result.message);
         setEditingType(null);
-        setAppointmentTypes(appointmentTypes.map((type) =>
-          type.id === editingType.id
-            ? { ...type, ...data, id: type.id }
-            : type
-        ));
+        setAppointmentTypes(
+          appointmentTypes.map((type) =>
+            type.id === editingType.id
+              ? { ...type, ...data, id: type.id }
+              : type
+          )
+        );
         onUpdate?.();
       } else {
         toast.error(result.message);
@@ -228,7 +236,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...createForm}>
-                  <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
+                  <form
+                    onSubmit={createForm.handleSubmit(onCreateSubmit)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={createForm.control}
                       name="name"
@@ -236,7 +247,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                         <FormItem>
                           <FormLabel>Name*</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Consultation, Follow-up" {...field} />
+                            <Input
+                              placeholder="e.g., Consultation, Follow-up"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -274,7 +288,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                 max={1440}
                                 placeholder="30"
                                 {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                onChange={(e) =>
+                                  field.onChange(parseInt(e.target.value) || 0)
+                                }
                                 value={field.value || ""}
                               />
                             </FormControl>
@@ -294,7 +310,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                   type="color"
                                   {...field}
                                   value={field.value || "#3b82f6"}
-                                  onChange={(e) => field.onChange(e.target.value)}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.value)
+                                  }
                                   className="h-10 w-20 p-1"
                                 />
                                 <Input
@@ -318,7 +336,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                           <FormControl>
                             <Checkbox
                               checked={field.value}
-                              onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                              onCheckedChange={(
+                                checked: boolean | "indeterminate"
+                              ) => field.onChange(!!checked)}
                             />
                           </FormControl>
                           <FormLabel className="!mt-0">Active</FormLabel>
@@ -335,7 +355,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                         Cancel
                       </Button>
                       <Button type="submit" disabled={loading}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {loading && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
                         Create
                       </Button>
                     </DialogFooter>
@@ -376,7 +398,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                         )}
                       </div>
                       {type.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{type.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {type.description}
+                        </p>
                       )}
                       <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span>Duration: {formatDuration(type.duration)}</span>
@@ -384,7 +408,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Dialog open={editingType?.id === type.id} onOpenChange={(open) => !open && setEditingType(null)}>
+                    <Dialog
+                      open={editingType?.id === type.id}
+                      onOpenChange={(open) => !open && setEditingType(null)}
+                    >
                       <DialogTrigger asChild>
                         <Button
                           variant="ghost"
@@ -403,7 +430,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                             </DialogDescription>
                           </DialogHeader>
                           <Form {...updateForm}>
-                            <form onSubmit={updateForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
+                            <form
+                              onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
+                              className="space-y-4"
+                            >
                               <FormField
                                 control={updateForm.control}
                                 name="name"
@@ -411,7 +441,10 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                   <FormItem>
                                     <FormLabel>Name*</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="e.g., Consultation" {...field} />
+                                      <Input
+                                        placeholder="e.g., Consultation"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -449,7 +482,11 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                           max={1440}
                                           placeholder="30"
                                           {...field}
-                                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              parseInt(e.target.value) || 0
+                                            )
+                                          }
                                           value={field.value || ""}
                                         />
                                       </FormControl>
@@ -469,7 +506,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                             type="color"
                                             {...field}
                                             value={field.value || "#3b82f6"}
-                                            onChange={(e) => field.onChange(e.target.value)}
+                                            onChange={(e) =>
+                                              field.onChange(e.target.value)
+                                            }
                                             className="h-10 w-20 p-1"
                                           />
                                           <Input
@@ -479,7 +518,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                           />
                                         </div>
                                       </FormControl>
-                                      <FormDescription>Hex color code</FormDescription>
+                                      <FormDescription>
+                                        Hex color code
+                                      </FormDescription>
                                       <FormMessage />
                                     </FormItem>
                                   )}
@@ -493,10 +534,14 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                     <FormControl>
                                       <Checkbox
                                         checked={field.value}
-                                        onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                                        onCheckedChange={(
+                                          checked: boolean | "indeterminate"
+                                        ) => field.onChange(!!checked)}
                                       />
                                     </FormControl>
-                                    <FormLabel className="!mt-0">Active</FormLabel>
+                                    <FormLabel className="!mt-0">
+                                      Active
+                                    </FormLabel>
                                   </FormItem>
                                 )}
                               />
@@ -510,7 +555,9 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                                   Cancel
                                 </Button>
                                 <Button type="submit" disabled={loading}>
-                                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  {loading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  )}
                                   Update
                                 </Button>
                               </DialogFooter>
@@ -535,14 +582,19 @@ export function AppointmentTypesForm({ organizationId, appointmentTypes: initial
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the appointment type "{type.name}".
+                            This action cannot be undone. This will permanently
+                            delete the appointment type: {type.name}.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(type.id)}>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(type.id)}
+                          >
                             Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>
