@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { AppointmentStatus, UserRole, NotificationType } from "@prisma/client";
-import { createUserNotification } from "@/lib/notifications";
+import { createUserNotification } from "@/actions/notifications";
 
 /**
  * Updates the status of an appointment.
@@ -67,12 +67,18 @@ export const updateAppointmentStatus = async (
     // Users can only cancel their own appointments
     if (status === AppointmentStatus.CANCELLED) {
       if (!isOwner && !isAdmin && !isAppointmentOwner) {
-        return { success: false, message: "You don't have permission to cancel this appointment!" };
+        return {
+          success: false,
+          message: "You don't have permission to cancel this appointment!",
+        };
       }
     } else {
       // For other status updates (like COMPLETED), only owners and admins can do it
       if (!isOwner && !isAdmin) {
-        return { success: false, message: "You don't have permission to update this appointment!" };
+        return {
+          success: false,
+          message: "You don't have permission to update this appointment!",
+        };
       }
     }
 
@@ -83,12 +89,21 @@ export const updateAppointmentStatus = async (
 
     // Check if appointment is already in the target status
     if (appointment.status === status) {
-      return { success: false, message: `Appointment is already ${status.toLowerCase()}!` };
+      return {
+        success: false,
+        message: `Appointment is already ${status.toLowerCase()}!`,
+      };
     }
 
     // Check if trying to update a completed appointment
-    if (appointment.status === AppointmentStatus.COMPLETED && status !== AppointmentStatus.COMPLETED) {
-      return { success: false, message: "Cannot modify a completed appointment!" };
+    if (
+      appointment.status === AppointmentStatus.COMPLETED &&
+      status !== AppointmentStatus.COMPLETED
+    ) {
+      return {
+        success: false,
+        message: "Cannot modify a completed appointment!",
+      };
     }
 
     // Update the appointment status
@@ -96,14 +111,17 @@ export const updateAppointmentStatus = async (
       where: { id: appointmentId },
       data: {
         status,
-        cancellationReason: status === AppointmentStatus.CANCELLED ? cancellationReason : undefined,
+        cancellationReason:
+          status === AppointmentStatus.CANCELLED
+            ? cancellationReason
+            : undefined,
       },
     });
 
     // Send notifications when organization confirms or cancels an appointment
     // Check if the update is done by organization (not by the appointment owner)
     const isOrganizationUpdate = (isOwner || isAdmin) && !isAppointmentOwner;
-    
+
     if (isOrganizationUpdate) {
       if (status === AppointmentStatus.CONFIRMED) {
         // Organization confirmed the appointment - notify the user
@@ -117,18 +135,19 @@ export const updateAppointmentStatus = async (
           appointmentId,
           NotificationType.APPOINTMENT_CONFIRMED,
           notificationTitle,
-          notificationMessage,
-          {
-            appointmentTitle: appointment.title,
-            appointmentStartTime: appointment.startTime.toISOString(),
-            organizationName: appointment.organization.name,
-          }
+          notificationMessage
         );
       } else if (status === AppointmentStatus.CANCELLED) {
         // Organization cancelled the appointment - notify the user
         const formattedStartTime = appointment.startTime.toLocaleString();
         const notificationTitle = "Appointment Cancelled by Organization";
-        const notificationMessage = `Your appointment "${appointment.title}" scheduled for ${formattedStartTime} in ${appointment.organization.name} has been cancelled.${cancellationReason ? ` Reason: ${cancellationReason}` : ""}`;
+        const notificationMessage = `Your appointment "${
+          appointment.title
+        }" scheduled for ${formattedStartTime} in ${
+          appointment.organization.name
+        } has been cancelled.${
+          cancellationReason ? ` Reason: ${cancellationReason}` : ""
+        }`;
 
         await createUserNotification(
           appointment.userId,
@@ -136,21 +155,17 @@ export const updateAppointmentStatus = async (
           appointmentId,
           NotificationType.APPOINTMENT_CANCELLED,
           notificationTitle,
-          notificationMessage,
-          {
-            appointmentTitle: appointment.title,
-            appointmentStartTime: appointment.startTime.toISOString(),
-            cancellationReason: cancellationReason || null,
-            organizationName: appointment.organization.name,
-          }
+          notificationMessage
         );
       }
     }
 
-    return { success: true, message: `Appointment ${status.toLowerCase()} successfully!` };
+    return {
+      success: true,
+      message: `Appointment ${status.toLowerCase()} successfully!`,
+    };
   } catch (error) {
     console.error("Error updating appointment status:", error);
     return { success: false, message: "Something went wrong!" };
   }
 };
-

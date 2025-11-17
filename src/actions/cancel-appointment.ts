@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { AppointmentStatus, NotificationType } from "@prisma/client";
-import { createOrganizationNotifications } from "@/lib/notifications";
+import { createOrganizationNotifications } from "@/actions/notifications";
 
 /**
  * Cancels an appointment for the current user.
@@ -56,7 +56,10 @@ export const cancelAppointment = async (
 
     // Check if the user owns the appointment
     if (appointment.userId !== session.user.id) {
-      return { success: false, message: "You don't have permission to cancel this appointment!" };
+      return {
+        success: false,
+        message: "You don't have permission to cancel this appointment!",
+      };
     }
 
     // Check if appointment is already cancelled
@@ -66,7 +69,10 @@ export const cancelAppointment = async (
 
     // Check if appointment is completed (usually can't cancel completed appointments)
     if (appointment.status === AppointmentStatus.COMPLETED) {
-      return { success: false, message: "Cannot cancel a completed appointment!" };
+      return {
+        success: false,
+        message: "Cannot cancel a completed appointment!",
+      };
     }
 
     // Update the appointment status to CANCELLED
@@ -79,23 +85,22 @@ export const cancelAppointment = async (
     });
 
     // Send notifications to organization owner and members
-    const userName = appointment.user.name || appointment.user.email || "A user";
+    const userName =
+      appointment.user.name || appointment.user.email || "A user";
     const formattedStartTime = appointment.startTime.toLocaleString();
     const notificationTitle = "Appointment Cancelled";
-    const notificationMessage = `${userName} has cancelled the appointment "${appointment.title}" scheduled for ${formattedStartTime} in ${appointment.organization.name}.${cancellationReason ? ` Reason: ${cancellationReason}` : ""}`;
+    const notificationMessage = `${userName} has cancelled the appointment "${
+      appointment.title
+    }" scheduled for ${formattedStartTime} in ${
+      appointment.organization.name
+    }.${cancellationReason ? ` Reason: ${cancellationReason}` : ""}`;
 
     await createOrganizationNotifications(
       appointment.organizationId,
       appointment.id,
       NotificationType.APPOINTMENT_CANCELLED,
       notificationTitle,
-      notificationMessage,
-      {
-        appointmentTitle: appointment.title,
-        appointmentStartTime: appointment.startTime.toISOString(),
-        cancellationReason: cancellationReason || null,
-        userName: userName,
-      }
+      notificationMessage
     );
 
     return { success: true, message: "Appointment cancelled successfully!" };
@@ -104,4 +109,3 @@ export const cancelAppointment = async (
     return { success: false, message: "Something went wrong!" };
   }
 };
-

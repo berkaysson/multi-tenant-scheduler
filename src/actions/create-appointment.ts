@@ -5,7 +5,7 @@ import db from "@/lib/db";
 import { CreateAppointmentSchema } from "@/schemas";
 import { AppointmentStatus, NotificationType } from "@prisma/client";
 import { z } from "zod";
-import { createOrganizationNotifications } from "@/lib/notifications";
+import { createOrganizationNotifications } from "@/actions/notifications";
 
 /**
  * Creates a new appointment for an organization.
@@ -13,7 +13,9 @@ import { createOrganizationNotifications } from "@/lib/notifications";
  * @param {z.infer<typeof CreateAppointmentSchema>} data - The appointment data.
  * @returns {Promise<{ success: boolean; message: string; appointment?: any }>} - A promise that resolves to an object indicating the result of the operation.
  */
-export const createAppointment = async (data: z.infer<typeof CreateAppointmentSchema>) => {
+export const createAppointment = async (
+  data: z.infer<typeof CreateAppointmentSchema>
+) => {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -73,7 +75,10 @@ export const createAppointment = async (data: z.infer<typeof CreateAppointmentSc
       });
 
       if (!appointmentType) {
-        return { success: false, message: "Appointment type not found or inactive!" };
+        return {
+          success: false,
+          message: "Appointment type not found or inactive!",
+        };
       }
     }
 
@@ -121,7 +126,8 @@ export const createAppointment = async (data: z.infer<typeof CreateAppointmentSc
     });
 
     // Send notifications to organization owner and members
-    const userName = appointment.user.name || appointment.user.email || "A user";
+    const userName =
+      appointment.user.name || appointment.user.email || "A user";
     const formattedStartTime = startDateTime.toLocaleString();
     const notificationTitle = "New Appointment Created";
     const notificationMessage = `${userName} has created a new appointment "${title}" on ${formattedStartTime} in ${appointment.organization.name}.`;
@@ -131,19 +137,16 @@ export const createAppointment = async (data: z.infer<typeof CreateAppointmentSc
       appointment.id,
       NotificationType.APPOINTMENT_CREATED,
       notificationTitle,
-      notificationMessage,
-      {
-        appointmentTitle: title,
-        appointmentStartTime: startDateTime.toISOString(),
-        appointmentEndTime: endDateTime.toISOString(),
-        userName: userName,
-      }
+      notificationMessage
     );
 
-    return { success: true, message: "Appointment created successfully!", appointment };
+    return {
+      success: true,
+      message: "Appointment created successfully!",
+      appointment,
+    };
   } catch (error) {
     console.error("Error creating appointment:", error);
     return { success: false, message: "Something went wrong!" };
   }
 };
-
