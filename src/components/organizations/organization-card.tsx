@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Mail, Phone, Building2 } from "lucide-react";
+import { MapPin, Calendar, Mail, Phone, Building2, ExternalLink } from "lucide-react";
 import { Organization } from "./types";
 
 interface OrganizationCardProps {
@@ -66,6 +67,14 @@ export function OrganizationCard({ org, onShowMap, onShowCalendar }: Organizatio
             >
               <Calendar className="h-4 w-4" />
               View Calendar
+            </Button>
+          )}
+          {org.isPublic && (
+            <Button asChild variant="outline" size="sm" className="w-full gap-2">
+              <Link href={`/o/${org.slug}`} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4" />
+                Public Page
+              </Link>
             </Button>
           )}
         </div>
