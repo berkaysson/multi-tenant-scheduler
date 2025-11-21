@@ -218,9 +218,10 @@ export function CreateAppointmentDialog({
                   <FormItem>
                     <FormLabel>Appointment Type (Optional)</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
-                      value={field.value || "none"}
-                      disabled={loadingTypes}
+                      value={field.value ?? "none"}
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
                     >
                       <FormControl>
                         <SelectTrigger>
