@@ -70,6 +70,7 @@ export function OrganizationSearchFilter({
                   <SelectItem value="country">Country</SelectItem>
                   <SelectItem value="createdAt">Created Date</SelectItem>
                   <SelectItem value="appointments">Appointments</SelectItem>
+                  <SelectItem value="nearest">Nearest</SelectItem>
                 </SelectContent>
               </Select>
             </div>
