@@ -4,6 +4,7 @@ import {
   authRoutes,
   publicRoutes,
   getRequiredRoles,
+  isPublicOrganizationRoute,
 } from "./routes";
 import { UserRole } from "@prisma/client";
 import { getRoleRedirect } from "./lib/role-redirect";
@@ -21,7 +22,7 @@ export default auth((req) => {
   const userRole = req.auth?.user?.role as UserRole | undefined;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthRoute);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname) || isPublicOrganizationRoute(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
   if (isApiAuthRoute) {

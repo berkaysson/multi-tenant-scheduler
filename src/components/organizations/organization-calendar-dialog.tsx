@@ -31,6 +31,7 @@ interface UnavailableDate {
 interface OrganizationCalendarDialogProps {
   organizationId: string | null;
   organizationName: string;
+  isAuthenticated?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -38,6 +39,7 @@ interface OrganizationCalendarDialogProps {
 export function OrganizationCalendarDialog({
   organizationId,
   organizationName,
+  isAuthenticated = true,
   open,
   onOpenChange,
 }: OrganizationCalendarDialogProps) {
@@ -242,6 +244,7 @@ export function OrganizationCalendarDialog({
         weeklyAvailability={weeklyAvailability}
         organizationId={organizationId}
         isOwner={isOwner}
+        isAuthenticated={isAuthenticated}
         open={showHoursDialog}
         onOpenChange={setShowHoursDialog}
       />

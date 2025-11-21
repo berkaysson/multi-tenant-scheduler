@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog, OrganizationAppointmentsDialog } from "@/components/organizations";
+import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog, OrganizationAppointmentsDialog, OrganizationShareDialog } from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Calendar, CalendarClock, Building, Settings, Clock, List } from "lucide-react";
+import { Loader2, Calendar, CalendarClock, Building, Settings, Clock, List, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Organization {
@@ -42,6 +42,7 @@ export default function ManagerOrganizationPage() {
   const [activeTab, setActiveTab] = useState<string>("");
   const [calendarStates, setCalendarStates] = useState<Record<string, boolean>>({});
   const [appointmentsStates, setAppointmentsStates] = useState<Record<string, boolean>>({});
+  const [shareStates, setShareStates] = useState<Record<string, boolean>>({});
   const router = useRouter();
 
   const fetchOrganizations = async () => {
@@ -65,6 +66,14 @@ export default function ManagerOrganizationPage() {
     fetchOrganizations();
   }, []);
 
+  useEffect(() => {
+    if (!activeTab) return;
+    // Close any open dialogs when switching between organizations
+    setCalendarStates({});
+    setAppointmentsStates({});
+    setShareStates({});
+  }, [activeTab]);
+
   const handleShowCalendar = (organizationId: string) => {
     setCalendarStates(prev => ({ ...prev, [organizationId]: true }));
   };
@@ -79,6 +88,14 @@ export default function ManagerOrganizationPage() {
 
   const handleCloseAppointments = (organizationId: string) => {
     setAppointmentsStates(prev => ({ ...prev, [organizationId]: false }));
+  };
+
+  const handleShowShare = (organizationId: string) => {
+    setShareStates(prev => ({ ...prev, [organizationId]: true }));
+  };
+
+  const handleCloseShare = (organizationId: string) => {
+    setShareStates(prev => ({ ...prev, [organizationId]: false }));
   };
 
   const renderOrganizationContent = (organization: Organization) => {
@@ -107,6 +124,17 @@ export default function ManagerOrganizationPage() {
                   >
                     <Calendar className="h-4 w-4" />
                     Calendar
+                  </Button>
+                )}
+                {organization.isPublic && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleShowShare(organization.id)}
+                    className="gap-2 flex-1"
+                  >
+                    <QrCode className="h-4 w-4" />
+                    Share Link
                   </Button>
                 )}
               </div>
@@ -180,6 +208,15 @@ export default function ManagerOrganizationPage() {
           open={appointmentsStates[organization.id] || false}
           onOpenChange={(open) => open ? handleShowAppointments(organization.id) : handleCloseAppointments(organization.id)}
         />
+
+        {organization.isPublic && (
+          <OrganizationShareDialog
+            organizationName={organization.name}
+            organizationSlug={organization.slug}
+            open={shareStates[organization.id] || false}
+            onOpenChange={(open) => open ? handleShowShare(organization.id) : handleCloseShare(organization.id)}
+          />
+        )}
       </div>
     );
   };

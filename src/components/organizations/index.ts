@@ -4,6 +4,7 @@ export { OrganizationMapDialogs } from "./organization-map-dialogs";
 export { OrganizationCalendarDialog } from "./organization-calendar-dialog";
 export { OrganizationHoursDialog } from "./organization-hours-dialog";
 export { OrganizationAppointmentsDialog } from "./organization-appointments-dialog";
+export { OrganizationShareDialog } from "./organization-share-dialog";
 export type { Organization } from "./types";
 
 export { CreateOrganizationForm } from "./create-organization-form";

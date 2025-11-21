@@ -3,6 +3,85 @@
 import db from "@/lib/db";
 
 /**
+ * Gets organization details by slug (for public pages).
+ *
+ * @param {string} slug - The organization slug.
+ * @returns {Promise<{ success: boolean; message: string; organization?: any }>} - A promise that resolves to an object with organization data or error message.
+ */
+export const getOrganizationBySlug = async (slug: string) => {
+  try {
+    // Only return if organization is public and active
+    const organization = await db.organization.findUnique({
+      where: {
+        slug: slug,
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              }
+            }
+          }
+        },
+        weeklyAvailability: {
+          orderBy: {
+            dayOfWeek: 'asc',
+          },
+        },
+        unavailableDates: {
+          orderBy: {
+            date: 'asc',
+          },
+        },
+        appointmentTypes: {
+          where: {
+            isActive: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            duration: true,
+            color: true,
+          },
+        },
+        _count: {
+          select: {
+            appointments: true,
+            appointmentTypes: true,
+          }
+        }
+      }
+    });
+
+    if (!organization) {
+      return { success: false, message: "Organization not found!" };
+    }
+
+    // Check if organization is public and active
+    if (!organization.isPublic || !organization.isActive) {
+      return { success: false, message: "This organization is not publicly available!" };
+    }
+
+    return { success: true, organization };
+  } catch (error) {
+    console.error("Error getting organization by slug:", error);
+    return { success: false, message: "Something went wrong!" };
+  }
+};
+
+/**
  * Gets organization details by ID.
  *
  * @param {string} organizationId - The organization ID.

@@ -9,9 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, CalendarX2 } from "lucide-react";
+import { Loader2, CalendarX2, LogIn } from "lucide-react";
 import dayjs from "dayjs";
 import { CreateAppointmentDialog } from "./create-appointment-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface WeeklyAvailability {
   id: string;
@@ -43,6 +45,7 @@ interface OrganizationHoursDialogProps {
   weeklyAvailability: WeeklyAvailability[];
   organizationId: string | null;
   isOwner?: boolean;
+  isAuthenticated?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -52,6 +55,7 @@ export function OrganizationHoursDialog({
   weeklyAvailability,
   organizationId,
   isOwner = false,
+  isAuthenticated = true,
   open,
   onOpenChange,
 }: OrganizationHoursDialogProps) {
@@ -131,6 +135,10 @@ export function OrganizationHoursDialog({
 
   const handleHourClick = (hour: string) => {
     if (isOwner || !organizationId || !date) return;
+    if (!isAuthenticated) {
+      // Show message that user needs to log in
+      return;
+    }
     setSelectedHour(hour);
     setShowCreateDialog(true);
   };
@@ -154,9 +162,24 @@ export function OrganizationHoursDialog({
             <DialogDescription>
               {isOwner
                 ? "View all appointments for this date. This is a read-only view."
-                : "Click on an available time slot to book an appointment."}
+                : isAuthenticated
+                ? "Click on an available time slot to book an appointment."
+                : "You need to log in to book an appointment."}
             </DialogDescription>
           </DialogHeader>
+
+          {!isAuthenticated && !isOwner && (
+            <Alert className="mx-6 mb-4 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+              <LogIn className="h-4 w-4" />
+              <AlertDescription>
+                Please{" "}
+                <Link href="/auth/login" className="font-semibold underline">
+                  log in
+                </Link>{" "}
+                to create an appointment.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="flex-grow overflow-y-auto pr-2 -mr-2">
             {loading ? (
@@ -180,11 +203,11 @@ export function OrganizationHoursDialog({
                     <div
                       key={hour}
                       onClick={() => handleHourClick(hour)}
-                      onKeyDown={(e) => !isOwner && (e.key === 'Enter' || e.key === ' ') && handleHourClick(hour)}
-                      tabIndex={isOwner ? -1 : 0}
+                      onKeyDown={(e) => !isOwner && isAuthenticated && (e.key === 'Enter' || e.key === ' ') && handleHourClick(hour)}
+                      tabIndex={isOwner || !isAuthenticated ? -1 : 0}
                       className={`
                         p-3 flex flex-col items-start justify-between rounded-lg border transition-all duration-200
-                        ${isOwner
+                        ${isOwner || !isAuthenticated
                           ? 'cursor-default'
                           : 'cursor-pointer hover:bg-accent hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
                         }

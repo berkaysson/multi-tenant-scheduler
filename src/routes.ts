@@ -10,6 +10,15 @@ import { UserRole } from "@prisma/client";
 export const publicRoutes = ["/", "/auth/new-verification"];
 
 /**
+ * Check if a route is a public organization route (e.g., /o/[slug]).
+ * @param pathname - The pathname to check
+ * @returns boolean indicating if the route is a public organization route
+ */
+export function isPublicOrganizationRoute(pathname: string): boolean {
+  return pathname.startsWith("/o/");
+}
+
+/**
  * An array of authentication routes.
  * @type {string[]}
  */
