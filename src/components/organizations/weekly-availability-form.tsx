@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { DayOfWeek } from "@prisma/client";
 
-import { createWeeklyAvailability } from "@/actions/create-weekly-availability";
+import { createWeeklyAvailability } from "@/actions/organization/create-weekly-availability";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,25 +52,31 @@ const DAYS_OF_WEEK: DayConfig[] = [
 
 const FormSchema = z.object({
   availabilities: z.array(
-    z.object({
-      dayOfWeek: z.nativeEnum(DayOfWeek),
-      startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
-      endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
-      enabled: z.boolean(),
-    }).refine(
-      (data) => {
-        if (!data.enabled) return true;
-        const [startHour, startMin] = data.startTime.split(":").map(Number);
-        const [endHour, endMin] = data.endTime.split(":").map(Number);
-        const startMinutes = startHour * 60 + startMin;
-        const endMinutes = endHour * 60 + endMin;
-        return endMinutes > startMinutes;
-      },
-      {
-        message: "End time must be after start time",
-        path: ["endTime"],
-      }
-    )
+    z
+      .object({
+        dayOfWeek: z.nativeEnum(DayOfWeek),
+        startTime: z
+          .string()
+          .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
+        endTime: z
+          .string()
+          .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
+        enabled: z.boolean(),
+      })
+      .refine(
+        (data) => {
+          if (!data.enabled) return true;
+          const [startHour, startMin] = data.startTime.split(":").map(Number);
+          const [endHour, endMin] = data.endTime.split(":").map(Number);
+          const startMinutes = startHour * 60 + startMin;
+          const endMinutes = endHour * 60 + endMin;
+          return endMinutes > startMinutes;
+        },
+        {
+          message: "End time must be after start time",
+          path: ["endTime"],
+        }
+      )
   ),
 });
 
@@ -169,7 +175,9 @@ export function WeeklyAvailabilityForm({
                           <FormControl>
                             <Input
                               type="time"
-                              disabled={!form.watch(`availabilities.${index}.enabled`)}
+                              disabled={
+                                !form.watch(`availabilities.${index}.enabled`)
+                              }
                               {...field}
                             />
                           </FormControl>
@@ -189,7 +197,9 @@ export function WeeklyAvailabilityForm({
                           <FormControl>
                             <Input
                               type="time"
-                              disabled={!form.watch(`availabilities.${index}.enabled`)}
+                              disabled={
+                                !form.watch(`availabilities.${index}.enabled`)
+                              }
                               {...field}
                             />
                           </FormControl>
@@ -202,7 +212,11 @@ export function WeeklyAvailabilityForm({
               ))}
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

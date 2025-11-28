@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-import { cancelAppointment } from "@/actions/cancel-appointment";
+import { cancelAppointment } from "@/actions/appointment/cancel-appointment";
 import {
   Dialog,
   DialogContent,

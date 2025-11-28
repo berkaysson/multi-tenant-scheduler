@@ -1,12 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getManagerOrganization } from "@/actions/get-manager-organization";
-import { UpdateOrganizationForm, AppointmentTypesForm, WeeklyAvailabilityForm, UnavailableDatesForm, OrganizationCalendarDialog, OrganizationAppointmentsDialog, OrganizationShareDialog } from "@/components/organizations";
+import { getManagerOrganization } from "@/actions/organization/get-manager-organization";
+import {
+  UpdateOrganizationForm,
+  AppointmentTypesForm,
+  WeeklyAvailabilityForm,
+  UnavailableDatesForm,
+  OrganizationCalendarDialog,
+  OrganizationAppointmentsDialog,
+  OrganizationShareDialog,
+} from "@/components/organizations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Calendar, CalendarClock, Building, Settings, Clock, List, QrCode } from "lucide-react";
+import {
+  Loader2,
+  Calendar,
+  CalendarClock,
+  Building,
+  Settings,
+  Clock,
+  List,
+  QrCode,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Organization {
@@ -40,19 +57,23 @@ export default function ManagerOrganizationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("");
-  const [calendarStates, setCalendarStates] = useState<Record<string, boolean>>({});
-  const [appointmentsStates, setAppointmentsStates] = useState<Record<string, boolean>>({});
+  const [calendarStates, setCalendarStates] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [appointmentsStates, setAppointmentsStates] = useState<
+    Record<string, boolean>
+  >({});
   const [shareStates, setShareStates] = useState<Record<string, boolean>>({});
   const router = useRouter();
 
   const fetchOrganizations = async () => {
     setLoading(true);
     const result = await getManagerOrganization();
-    
+
     if (result.success && result.organizations) {
       setOrganizations(result.organizations);
       if (result.organizations.length > 0 && !activeTab) {
-        const activeOrg = result.organizations.find(org => org.isActive);
+        const activeOrg = result.organizations.find((org) => org.isActive);
         setActiveTab(activeOrg ? activeOrg.id : result.organizations[0].id);
       }
       setError(null);
@@ -75,27 +96,27 @@ export default function ManagerOrganizationPage() {
   }, [activeTab]);
 
   const handleShowCalendar = (organizationId: string) => {
-    setCalendarStates(prev => ({ ...prev, [organizationId]: true }));
+    setCalendarStates((prev) => ({ ...prev, [organizationId]: true }));
   };
 
   const handleCloseCalendar = (organizationId: string) => {
-    setCalendarStates(prev => ({ ...prev, [organizationId]: false }));
+    setCalendarStates((prev) => ({ ...prev, [organizationId]: false }));
   };
 
   const handleShowAppointments = (organizationId: string) => {
-    setAppointmentsStates(prev => ({ ...prev, [organizationId]: true }));
+    setAppointmentsStates((prev) => ({ ...prev, [organizationId]: true }));
   };
 
   const handleCloseAppointments = (organizationId: string) => {
-    setAppointmentsStates(prev => ({ ...prev, [organizationId]: false }));
+    setAppointmentsStates((prev) => ({ ...prev, [organizationId]: false }));
   };
 
   const handleShowShare = (organizationId: string) => {
-    setShareStates(prev => ({ ...prev, [organizationId]: true }));
+    setShareStates((prev) => ({ ...prev, [organizationId]: true }));
   };
 
   const handleCloseShare = (organizationId: string) => {
-    setShareStates(prev => ({ ...prev, [organizationId]: false }));
+    setShareStates((prev) => ({ ...prev, [organizationId]: false }));
   };
 
   const renderOrganizationContent = (organization: Organization) => {
@@ -144,13 +165,22 @@ export default function ManagerOrganizationPage() {
 
         <Tabs defaultValue="details" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="details"><Settings className="h-4 w-4 mr-2" />Details</TabsTrigger>
-            <TabsTrigger value="availability"><Clock className="h-4 w-4 mr-2" />Availability</TabsTrigger>
-            <TabsTrigger value="services"><List className="h-4 w-4 mr-2" />Services</TabsTrigger>
+            <TabsTrigger value="details">
+              <Settings className="h-4 w-4 mr-2" />
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="availability">
+              <Clock className="h-4 w-4 mr-2" />
+              Availability
+            </TabsTrigger>
+            <TabsTrigger value="services">
+              <List className="h-4 w-4 mr-2" />
+              Services
+            </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="details">
-            <UpdateOrganizationForm 
+            <UpdateOrganizationForm
               organization={{
                 id: organization.id,
                 name: organization.name,
@@ -169,10 +199,10 @@ export default function ManagerOrganizationPage() {
                 isActive: organization.isActive,
                 isPublic: organization.isPublic,
               }}
-              onUpdate={fetchOrganizations} 
+              onUpdate={fetchOrganizations}
             />
           </TabsContent>
-          
+
           <TabsContent value="availability" className="space-y-6">
             <WeeklyAvailabilityForm
               organizationId={organization.id}
@@ -199,14 +229,22 @@ export default function ManagerOrganizationPage() {
           organizationId={organization.id}
           organizationName={organization.name}
           open={calendarStates[organization.id] || false}
-          onOpenChange={(open) => open ? handleShowCalendar(organization.id) : handleCloseCalendar(organization.id)}
+          onOpenChange={(open) =>
+            open
+              ? handleShowCalendar(organization.id)
+              : handleCloseCalendar(organization.id)
+          }
         />
 
         <OrganizationAppointmentsDialog
           organizationId={organization.id}
           organizationName={organization.name}
           open={appointmentsStates[organization.id] || false}
-          onOpenChange={(open) => open ? handleShowAppointments(organization.id) : handleCloseAppointments(organization.id)}
+          onOpenChange={(open) =>
+            open
+              ? handleShowAppointments(organization.id)
+              : handleCloseAppointments(organization.id)
+          }
         />
 
         {organization.isPublic && (
@@ -214,7 +252,11 @@ export default function ManagerOrganizationPage() {
             organizationName={organization.name}
             organizationSlug={organization.slug}
             open={shareStates[organization.id] || false}
-            onOpenChange={(open) => open ? handleShowShare(organization.id) : handleCloseShare(organization.id)}
+            onOpenChange={(open) =>
+              open
+                ? handleShowShare(organization.id)
+                : handleCloseShare(organization.id)
+            }
           />
         )}
       </div>
@@ -227,7 +269,9 @@ export default function ManagerOrganizationPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Loading your organizations...</p>
+            <p className="text-muted-foreground">
+              Loading your organizations...
+            </p>
           </div>
         </div>
       </div>
@@ -240,7 +284,9 @@ export default function ManagerOrganizationPage() {
         <Card>
           <CardContent className="text-center py-12">
             <Building className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Could not load organizations</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Could not load organizations
+            </h3>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => router.push("/organizations/create")}>
               Create Organization
@@ -255,8 +301,8 @@ export default function ManagerOrganizationPage() {
     return null;
   }
 
-  const activeOrganizations = organizations.filter(org => org.isActive);
-  const inactiveOrganizations = organizations.filter(org => !org.isActive);
+  const activeOrganizations = organizations.filter((org) => org.isActive);
+  const inactiveOrganizations = organizations.filter((org) => !org.isActive);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -271,17 +317,22 @@ export default function ManagerOrganizationPage() {
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
           <TabsList>
             {activeOrganizations.map((org) => (
-              <TabsTrigger key={org.id} value={org.id} className="whitespace-nowrap">
+              <TabsTrigger
+                key={org.id}
+                value={org.id}
+                className="whitespace-nowrap"
+              >
                 {org.name}
               </TabsTrigger>
             ))}
-            {inactiveOrganizations.length > 0 && activeOrganizations.length > 0 && (
-              <div className="mx-2 h-6 w-px bg-border" />
-            )}
+            {inactiveOrganizations.length > 0 &&
+              activeOrganizations.length > 0 && (
+                <div className="mx-2 h-6 w-px bg-border" />
+              )}
             {inactiveOrganizations.map((org) => (
-              <TabsTrigger 
-                key={org.id} 
-                value={org.id} 
+              <TabsTrigger
+                key={org.id}
+                value={org.id}
                 className="whitespace-nowrap opacity-60"
               >
                 {org.name} (Inactive)
@@ -289,7 +340,7 @@ export default function ManagerOrganizationPage() {
             ))}
           </TabsList>
         </div>
-        
+
         <div className="mt-6">
           {organizations.map((org) => (
             <TabsContent key={org.id} value={org.id}>

@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import CardWrapper from "./card-wrapper";
 import { useCallback, useEffect, useState } from "react";
-import { newVerification } from "@/actions/new-verification";
+import { newVerification } from "@/actions/auth/new-verification";
 
 const NewVerificationForm = () => {
   const [message, setMessage] = useState("");

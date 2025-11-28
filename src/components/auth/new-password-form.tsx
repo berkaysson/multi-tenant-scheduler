@@ -17,7 +17,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { newPassword } from "@/actions/new-password";
+import { newPassword } from "@/actions/auth/new-password";
 
 const NewPasswordForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -74,11 +74,7 @@ const NewPasswordForm = () => {
             />
           </div>
 
-          {message && (
-            <FormMessage>
-              {message}
-            </FormMessage>
-          )}
+          {message && <FormMessage>{message}</FormMessage>}
 
           <Button
             disabled={isPending}

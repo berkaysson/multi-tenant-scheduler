@@ -15,7 +15,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { login } from "@/actions/login";
+import { login } from "@/actions/auth/login";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 
@@ -95,11 +95,7 @@ const LoginForm = () => {
             />
           </div>
 
-          {message && (
-            <FormMessage>
-              {message}
-            </FormMessage>
-          )}
+          {message && <FormMessage>{message}</FormMessage>}
 
           <Button
             disabled={isPending}

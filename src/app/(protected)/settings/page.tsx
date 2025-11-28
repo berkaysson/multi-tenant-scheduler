@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/actions/logout";
+import { logout } from "@/actions/auth/logout";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useState } from "react";

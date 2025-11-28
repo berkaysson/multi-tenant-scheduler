@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { Calendar, Clock } from "lucide-react";
 import dayjs from "dayjs";
 
-import { createAppointment } from "@/actions/create-appointment";
-import { getAppointmentTypes } from "@/actions/get-appointment-types";
+import { createAppointment } from "@/actions/appointment/create-appointment";
+import { getAppointmentTypes } from "@/actions/appointment/get-appointment-types";
 import { CreateAppointmentSchema } from "@/schemas";
 import {
   Dialog,
@@ -65,7 +65,9 @@ export function CreateAppointmentDialog({
   onSuccess,
 }: CreateAppointmentDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>([]);
+  const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>(
+    []
+  );
   const [loadingTypes, setLoadingTypes] = useState(false);
 
   const form = useForm<{
@@ -162,14 +164,29 @@ export function CreateAppointmentDialog({
 
       const result = await createAppointment({
         organizationId,
-        appointmentTypeId: data.appointmentTypeId && data.appointmentTypeId.trim() !== "" ? data.appointmentTypeId : undefined,
+        appointmentTypeId:
+          data.appointmentTypeId && data.appointmentTypeId.trim() !== ""
+            ? data.appointmentTypeId
+            : undefined,
         title: data.title,
-        description: data.description && data.description.trim() !== "" ? data.description : undefined,
+        description:
+          data.description && data.description.trim() !== ""
+            ? data.description
+            : undefined,
         startTime: startDateTime,
         endTime: endDateTime,
-        contactName: data.contactName && data.contactName.trim() !== "" ? data.contactName : undefined,
-        contactEmail: data.contactEmail && data.contactEmail.trim() !== "" ? data.contactEmail : undefined,
-        contactPhone: data.contactPhone && data.contactPhone.trim() !== "" ? data.contactPhone : undefined,
+        contactName:
+          data.contactName && data.contactName.trim() !== ""
+            ? data.contactName
+            : undefined,
+        contactEmail:
+          data.contactEmail && data.contactEmail.trim() !== ""
+            ? data.contactEmail
+            : undefined,
+        contactPhone:
+          data.contactPhone && data.contactPhone.trim() !== ""
+            ? data.contactPhone
+            : undefined,
         notes: data.notes && data.notes.trim() !== "" ? data.notes : undefined,
       });
 
@@ -208,7 +225,10 @@ export function CreateAppointmentDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             {/* Appointment Type */}
             {appointmentTypes.length > 0 && (
               <FormField
@@ -229,7 +249,9 @@ export function CreateAppointmentDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">None (Default 1 hour)</SelectItem>
+                        <SelectItem value="none">
+                          None (Default 1 hour)
+                        </SelectItem>
                         {appointmentTypes.map((type) => (
                           <SelectItem key={type.id} value={type.id}>
                             {type.name} ({type.duration} min)
@@ -281,14 +303,21 @@ export function CreateAppointmentDialog({
             <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                Duration: {duration} minutes ({dayjs(`2000-01-01 ${hour}`).format("h:mm A")} - {dayjs(`2000-01-01 ${hour}`).add(duration, "minutes").format("h:mm A")})
+                Duration: {duration} minutes (
+                {dayjs(`2000-01-01 ${hour}`).format("h:mm A")} -{" "}
+                {dayjs(`2000-01-01 ${hour}`)
+                  .add(duration, "minutes")
+                  .format("h:mm A")}
+                )
               </span>
             </div>
 
             {/* Contact Information */}
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="font-semibold text-sm">Contact Information (Optional)</h3>
-              
+              <h3 className="font-semibold text-sm">
+                Contact Information (Optional)
+              </h3>
+
               <FormField
                 control={form.control}
                 name="contactName"
@@ -310,7 +339,11 @@ export function CreateAppointmentDialog({
                   <FormItem>
                     <FormLabel>Contact Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email@example.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="email@example.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -381,4 +414,3 @@ export function CreateAppointmentDialog({
     </Dialog>
   );
 }
-

@@ -15,9 +15,9 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { login } from "@/actions/login";
+import { login } from "@/actions/auth/login";
 import { useState, useTransition } from "react";
-import { register } from "@/actions/register";
+import { register } from "@/actions/auth/register";
 
 const RegisterForm = () => {
   const [isPending, startTransition] = useTransition();

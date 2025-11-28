@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 
-import { createOrganization } from "@/actions/create-organization";
+import { createOrganization } from "@/actions/organization/create-organization";
 import { CreateOrganizationSchema } from "@/schemas";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,7 +118,11 @@ export function CreateOrganizationForm() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea rows={4} placeholder="Enter organization description" {...field} />
+                    <Textarea
+                      rows={4}
+                      placeholder="Enter organization description"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,7 +137,11 @@ export function CreateOrganizationForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="contact@organization.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="contact@organization.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -162,7 +170,10 @@ export function CreateOrganizationForm() {
                   <FormItem>
                     <FormLabel>Website</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://organization.com" {...field} />
+                      <Input
+                        placeholder="https://organization.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,7 +186,10 @@ export function CreateOrganizationForm() {
                   <FormItem>
                     <FormLabel>Logo URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://organization.com/logo.png" {...field} />
+                      <Input
+                        placeholder="https://organization.com/logo.png"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -229,17 +243,28 @@ export function CreateOrganizationForm() {
               <div className="space-y-2">
                 <FormLabel>Location</FormLabel>
                 <LocationPicker
-                  center={latitude && longitude ? [latitude, longitude] : [41.0082, 28.9784]} // Default to Istanbul
+                  center={
+                    latitude && longitude
+                      ? [latitude, longitude]
+                      : [41.0082, 28.9784]
+                  } // Default to Istanbul
                   zoom={13}
                   height="400px"
-                  initialLocation={latitude && longitude ? [latitude, longitude] : undefined}
+                  initialLocation={
+                    latitude && longitude ? [latitude, longitude] : undefined
+                  }
                   onLocationSelect={(location) => {
-                    form.setValue("latitude", location[0], { shouldValidate: true });
-                    form.setValue("longitude", location[1], { shouldValidate: true });
+                    form.setValue("latitude", location[0], {
+                      shouldValidate: true,
+                    });
+                    form.setValue("longitude", location[1], {
+                      shouldValidate: true,
+                    });
                   }}
                 />
                 <FormDescription>
-                  Click on the map to select the organization location. This will automatically set the latitude and longitude.
+                  Click on the map to select the organization location. This
+                  will automatically set the latitude and longitude.
                 </FormDescription>
               </div>
 
@@ -251,14 +276,17 @@ export function CreateOrganizationForm() {
                     <FormItem>
                       <FormLabel>Latitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
                           placeholder="0.000000"
                           {...field}
                           value={field.value ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? undefined
+                                : parseFloat(e.target.value);
                             field.onChange(value);
                           }}
                         />
@@ -274,14 +302,17 @@ export function CreateOrganizationForm() {
                     <FormItem>
                       <FormLabel>Longitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
                           placeholder="0.000000"
                           {...field}
                           value={field.value ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? undefined
+                                : parseFloat(e.target.value);
                             field.onChange(value);
                           }}
                         />
@@ -302,7 +333,9 @@ export function CreateOrganizationForm() {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
-                        onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                        onCheckedChange={(checked: boolean | "indeterminate") =>
+                          field.onChange(!!checked)
+                        }
                       />
                     </FormControl>
                     <FormLabel className="!mt-0">Active</FormLabel>
@@ -317,7 +350,9 @@ export function CreateOrganizationForm() {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
-                        onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                        onCheckedChange={(checked: boolean | "indeterminate") =>
+                          field.onChange(!!checked)
+                        }
                       />
                     </FormControl>
                     <FormLabel className="!mt-0">Public</FormLabel>
@@ -345,5 +380,3 @@ export function CreateOrganizationForm() {
     </Card>
   );
 }
-
-

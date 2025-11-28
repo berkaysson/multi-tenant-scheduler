@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getOrganizations } from "@/actions/get-organization";
+import { getOrganizations } from "@/actions/organization/get-organization";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   OrganizationCard,
@@ -44,7 +44,9 @@ export default function OrganizationsPage() {
         },
         (error) => {
           console.error("Error getting location:", error);
-          setLocationError("Unable to get your location. Distance sorting will be unavailable.");
+          setLocationError(
+            "Unable to get your location. Distance sorting will be unavailable."
+          );
         },
         {
           enableHighAccuracy: true,
@@ -57,7 +59,11 @@ export default function OrganizationsPage() {
     }
   }, []);
 
-  const fetchOrganizations = async (query = searchQuery, sort = sortBy, order = sortOrder) => {
+  const fetchOrganizations = async (
+    query = searchQuery,
+    sort = sortBy,
+    order = sortOrder
+  ) => {
     setLoading(true);
     const result = await getOrganizations(query, sort, order);
     if (result.success && result.organizations) {
@@ -122,8 +128,8 @@ export default function OrganizationsPage() {
     fetchOrganizations(newQuery, newSortBy, newSortOrder);
   };
 
-  const activeOrgs = organizations.filter(org => org.isActive);
-  const inactiveOrgs = organizations.filter(org => !org.isActive);
+  const activeOrgs = organizations.filter((org) => org.isActive);
+  const inactiveOrgs = organizations.filter((org) => !org.isActive);
 
   return (
     <div className="min-h-screen p-4 sm:p-6 bg-gray-50">
@@ -154,21 +160,25 @@ export default function OrganizationsPage() {
           <Card className="mb-4 border-yellow-200 bg-yellow-50">
             <CardContent className="py-3">
               <p className="text-sm text-yellow-800">
-                {locationError} Please allow location access to sort by nearest organizations.
+                {locationError} Please allow location access to sort by nearest
+                organizations.
               </p>
             </CardContent>
           </Card>
         )}
 
-        {sortBy === "nearest" && !userLocation && !loading && !locationError && (
-          <Card className="mb-4 border-blue-200 bg-blue-50">
-            <CardContent className="py-3">
-              <p className="text-sm text-blue-800">
-                Getting your location to sort organizations by distance...
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {sortBy === "nearest" &&
+          !userLocation &&
+          !loading &&
+          !locationError && (
+            <Card className="mb-4 border-blue-200 bg-blue-50">
+              <CardContent className="py-3">
+                <p className="text-sm text-blue-800">
+                  Getting your location to sort organizations by distance...
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -207,7 +217,10 @@ export default function OrganizationsPage() {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {inactiveOrgs.map((org) => (
-                    <div key={org.id} className="opacity-75 hover:opacity-100 transition-opacity">
+                    <div
+                      key={org.id}
+                      className="opacity-75 hover:opacity-100 transition-opacity"
+                    >
                       <OrganizationCard
                         org={org}
                         onShowMap={handleShowOrgMap}

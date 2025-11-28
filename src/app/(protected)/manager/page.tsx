@@ -1,6 +1,6 @@
 "use client";
 
-import { logout } from "@/actions/logout";
+import { logout } from "@/actions/auth/logout";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -16,7 +16,9 @@ const ManagerPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-pink-100">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">Manager Dashboard</h2>
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">
+          Manager Dashboard
+        </h2>
         {status === "authenticated" ? (
           <div className="mb-4">
             <p className="text-gray-700 mb-2">
@@ -26,7 +28,10 @@ const ManagerPage = () => {
               <strong>Email:</strong> {session.user.email}
             </p>
             <p className="text-gray-700 mb-4">
-              <strong>Role:</strong> <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded">{session.user.role}</span>
+              <strong>Role:</strong>{" "}
+              <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded">
+                {session.user.role}
+              </span>
             </p>
 
             <div className="mb-4 p-4 bg-purple-50 rounded-lg">
@@ -65,4 +70,3 @@ const ManagerPage = () => {
 };
 
 export default ManagerPage;
-

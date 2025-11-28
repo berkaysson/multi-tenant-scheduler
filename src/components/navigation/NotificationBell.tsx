@@ -15,9 +15,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getNotifications, getUnreadNotificationCount } from "@/actions/get-notifications";
-import { markNotificationRead, markAllNotificationsRead } from "@/actions/mark-notification-read";
-import { deleteNotification } from "@/actions/delete-notification";
+import {
+  getNotifications,
+  getUnreadNotificationCount,
+} from "@/actions/notification/get-notifications";
+import {
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "@/actions/notification/mark-notification-read";
+import { deleteNotification } from "@/actions/notification/delete-notification";
 import { subscribeToNotifications } from "@/data/subscribe-notifications";
 import { toast } from "sonner";
 
@@ -208,12 +214,16 @@ export function NotificationBell() {
                 <div className="flex w-full items-start justify-between gap-2">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium">{notification.title}</p>
+                      <p className="text-sm font-medium">
+                        {notification.title}
+                      </p>
                       {!notification.read && (
                         <span className="h-2 w-2 rounded-full bg-primary" />
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{notification.message}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {notification.message}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {dayjs(notification.createdAt).fromNow()}
                       {" · "}

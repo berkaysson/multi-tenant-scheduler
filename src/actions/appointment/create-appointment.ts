@@ -5,7 +5,7 @@ import db from "@/lib/db";
 import { CreateAppointmentSchema } from "@/schemas";
 import { AppointmentStatus, NotificationType } from "@prisma/client";
 import { z } from "zod";
-import { createOrganizationNotifications } from "@/actions/notifications";
+import { createOrganizationNotifications } from "@/actions/notification/notifications";
 
 /**
  * Creates a new appointment for an organization.

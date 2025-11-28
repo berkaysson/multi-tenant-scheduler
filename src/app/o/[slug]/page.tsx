@@ -1,4 +1,4 @@
-import { getOrganizationBySlug } from "@/actions/get-organization";
+import { getOrganizationBySlug } from "@/actions/organization/get-organization";
 import { notFound } from "next/navigation";
 import { PublicOrganizationPageClient } from "./public-organization-page-client";
 import { auth } from "@/auth";
@@ -9,7 +9,9 @@ interface PublicOrganizationPageProps {
   }>;
 }
 
-export default async function PublicOrganizationPage({ params }: PublicOrganizationPageProps) {
+export default async function PublicOrganizationPage({
+  params,
+}: PublicOrganizationPageProps) {
   const { slug } = await params;
   const session = await auth();
 

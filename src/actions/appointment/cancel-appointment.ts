@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { AppointmentStatus, NotificationType } from "@prisma/client";
-import { createOrganizationNotifications } from "@/actions/notifications";
+import { createOrganizationNotifications } from "@/actions/notification/notifications";
 
 /**
  * Cancels an appointment for the current user.

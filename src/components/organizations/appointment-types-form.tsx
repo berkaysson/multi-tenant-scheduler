@@ -8,9 +8,9 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 
-import { createAppointmentType } from "@/actions/create-appointment-type";
-import { updateAppointmentType } from "@/actions/update-appointment-type";
-import { deleteAppointmentType } from "@/actions/delete-appointment-type";
+import { createAppointmentType } from "@/actions/appointment/create-appointment-type";
+import { updateAppointmentType } from "@/actions/appointment/update-appointment-type";
+import { deleteAppointmentType } from "@/actions/appointment/delete-appointment-type";
 import { CreateAppointmentTypeSchema } from "@/schemas";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

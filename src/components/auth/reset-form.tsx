@@ -16,7 +16,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
-import { reset } from "@/actions/reset";
+import { reset } from "@/actions/auth/reset";
 
 const ResetForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -65,11 +65,7 @@ const ResetForm = () => {
             />
           </div>
 
-          {message && (
-            <FormMessage>
-              {message}
-            </FormMessage>
-          )}
+          {message && <FormMessage>{message}</FormMessage>}
 
           <Button
             disabled={isPending}

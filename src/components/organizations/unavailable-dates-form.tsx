@@ -7,8 +7,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Plus, Trash2, Calendar, Loader2 } from "lucide-react";
 
-import { createUnavailableDate } from "@/actions/create-unavailable-date";
-import { deleteUnavailableDate } from "@/actions/delete-unavailable-date";
+import { createUnavailableDate } from "@/actions/organization/create-unavailable-date";
+import { deleteUnavailableDate } from "@/actions/organization/delete-unavailable-date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,7 +104,7 @@ export function UnavailableDatesForm({
       year: "numeric",
       month: "long",
       day: "numeric",
-      timeZone: 'UTC', // Ensure date is not shifted by timezone
+      timeZone: "UTC", // Ensure date is not shifted by timezone
     });
   };
 
@@ -180,7 +180,9 @@ export function UnavailableDatesForm({
             <div className="text-center py-8 text-muted-foreground rounded-lg bg-accent/50">
               <Calendar className="mx-auto h-10 w-10 text-gray-400 mb-2" />
               <p className="font-semibold">No unavailable dates scheduled</p>
-              <p className="text-sm">Add dates when your organization will be closed.</p>
+              <p className="text-sm">
+                Add dates when your organization will be closed.
+              </p>
             </div>
           ) : (
             <div className="space-y-2">

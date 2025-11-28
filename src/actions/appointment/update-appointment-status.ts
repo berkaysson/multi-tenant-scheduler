@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { AppointmentStatus, UserRole, NotificationType } from "@prisma/client";
-import { createUserNotification } from "@/actions/notifications";
+import { createUserNotification } from "@/actions/notification/notifications";
 
 /**
  * Updates the status of an appointment.

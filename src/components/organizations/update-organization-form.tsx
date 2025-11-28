@@ -8,7 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-import { updateOrganization } from "@/actions/update-organization";
+import { updateOrganization } from "@/actions/organization/update-organization";
 import { UpdateOrganizationSchema } from "@/schemas";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,10 @@ interface UpdateOrganizationFormProps {
   onUpdate?: () => void;
 }
 
-export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganizationFormProps) {
+export function UpdateOrganizationForm({
+  organization,
+  onUpdate,
+}: UpdateOrganizationFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -138,7 +141,10 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Organization Name*</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter organization name" {...field} />
+                        <Input
+                          placeholder="Enter organization name"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -165,7 +171,12 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea rows={4} placeholder="Enter organization description" {...field} value={field.value || ""} />
+                      <Textarea
+                        rows={4}
+                        placeholder="Enter organization description"
+                        {...field}
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +194,12 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="contact@organization.com" {...field} value={field.value || ""} />
+                        <Input
+                          type="email"
+                          placeholder="contact@organization.com"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -196,7 +212,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1234567890" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="+1234567890"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,7 +229,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Website</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://organization.com" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="https://organization.com"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -222,7 +246,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Logo URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://organization.com/logo.png" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="https://organization.com/logo.png"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -241,7 +269,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="123 Main St"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -254,7 +286,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input placeholder="New York" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="New York"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -267,7 +303,11 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Country</FormLabel>
                       <FormControl>
-                        <Input placeholder="USA" {...field} value={field.value || ""} />
+                        <Input
+                          placeholder="USA"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -277,13 +317,23 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
               <div className="space-y-2">
                 <FormLabel>Map Location</FormLabel>
                 <LocationPicker
-                  center={latitude && longitude ? [latitude, longitude] : [41.0082, 28.9784]}
+                  center={
+                    latitude && longitude
+                      ? [latitude, longitude]
+                      : [41.0082, 28.9784]
+                  }
                   zoom={13}
                   height="400px"
-                  initialLocation={latitude && longitude ? [latitude, longitude] : undefined}
+                  initialLocation={
+                    latitude && longitude ? [latitude, longitude] : undefined
+                  }
                   onLocationSelect={(location) => {
-                    form.setValue("latitude", location[0], { shouldValidate: true });
-                    form.setValue("longitude", location[1], { shouldValidate: true });
+                    form.setValue("latitude", location[0], {
+                      shouldValidate: true,
+                    });
+                    form.setValue("longitude", location[1], {
+                      shouldValidate: true,
+                    });
                   }}
                 />
                 <FormDescription>
@@ -298,14 +348,17 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Latitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
                           placeholder="0.000000"
                           {...field}
                           value={field.value ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? undefined
+                                : parseFloat(e.target.value);
                             field.onChange(value);
                           }}
                         />
@@ -321,14 +374,17 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                     <FormItem>
                       <FormLabel>Longitude</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
+                        <Input
+                          type="number"
                           step="any"
                           placeholder="0.000000"
                           {...field}
                           value={field.value ?? ""}
                           onChange={(e) => {
-                            const value = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                            const value =
+                              e.target.value === ""
+                                ? undefined
+                                : parseFloat(e.target.value);
                             field.onChange(value);
                           }}
                         />
@@ -351,7 +407,9 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                       <FormControl>
                         <Checkbox
                           checked={field.value}
-                          onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                          onCheckedChange={(
+                            checked: boolean | "indeterminate"
+                          ) => field.onChange(!!checked)}
                         />
                       </FormControl>
                       <FormLabel className="!mt-0">Active</FormLabel>
@@ -366,7 +424,9 @@ export function UpdateOrganizationForm({ organization, onUpdate }: UpdateOrganiz
                       <FormControl>
                         <Checkbox
                           checked={field.value}
-                          onCheckedChange={(checked: boolean | "indeterminate") => field.onChange(!!checked)}
+                          onCheckedChange={(
+                            checked: boolean | "indeterminate"
+                          ) => field.onChange(!!checked)}
                         />
                       </FormControl>
                       <FormLabel className="!mt-0">Public</FormLabel>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAppointmentsByDate } from "@/actions/get-appointments-by-date";
+import { getAppointmentsByDate } from "@/actions/appointment/get-appointments-by-date";
 import {
   Dialog,
   DialogContent,
@@ -91,7 +91,13 @@ export function OrganizationHoursDialog({
 
   const getDayOfWeekIndex = (dayOfWeek: string): number => {
     const dayMap: { [key: string]: number } = {
-      SUNDAY: 0, MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4, FRIDAY: 5, SATURDAY: 6,
+      SUNDAY: 0,
+      MONDAY: 1,
+      TUESDAY: 2,
+      WEDNESDAY: 3,
+      THURSDAY: 4,
+      FRIDAY: 5,
+      SATURDAY: 6,
     };
     return dayMap[dayOfWeek] ?? -1;
   };
@@ -106,8 +112,10 @@ export function OrganizationHoursDialog({
     if (!availability) return [];
 
     const hours: string[] = [];
-    const [startHour, startMinute] = availability.startTime.split(':').map(Number);
-    const [endHour, endMinute] = availability.endTime.split(':').map(Number);
+    const [startHour, startMinute] = availability.startTime
+      .split(":")
+      .map(Number);
+    const [endHour, endMinute] = availability.endTime.split(":").map(Number);
 
     const start = dayjs().hour(startHour).minute(startMinute);
     const end = dayjs().hour(endHour).minute(endMinute);
@@ -123,13 +131,16 @@ export function OrganizationHoursDialog({
 
   const getAppointmentsForHour = (hour: string): Appointment[] => {
     if (!date) return [];
-    const [hourNum, minuteNum] = hour.split(':').map(Number);
+    const [hourNum, minuteNum] = hour.split(":").map(Number);
     const hourStart = dayjs(date).hour(hourNum).minute(minuteNum);
     const hourEnd = hourStart.add(1, "hour");
 
     return appointments.filter((apt) => {
       const aptStart = dayjs(apt.startTime);
-      return (aptStart.isAfter(hourStart) || aptStart.isSame(hourStart)) && aptStart.isBefore(hourEnd);
+      return (
+        (aptStart.isAfter(hourStart) || aptStart.isSame(hourStart)) &&
+        aptStart.isBefore(hourEnd)
+      );
     });
   };
 
@@ -157,7 +168,8 @@ export function OrganizationHoursDialog({
         <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
-              {isOwner ? "Appointments" : "Available Hours"} for {dayjs(date).format("MMMM D, YYYY")}
+              {isOwner ? "Appointments" : "Available Hours"} for{" "}
+              {dayjs(date).format("MMMM D, YYYY")}
             </DialogTitle>
             <DialogDescription>
               {isOwner
@@ -203,17 +215,24 @@ export function OrganizationHoursDialog({
                     <div
                       key={hour}
                       onClick={() => handleHourClick(hour)}
-                      onKeyDown={(e) => !isOwner && isAuthenticated && (e.key === 'Enter' || e.key === ' ') && handleHourClick(hour)}
+                      onKeyDown={(e) =>
+                        !isOwner &&
+                        isAuthenticated &&
+                        (e.key === "Enter" || e.key === " ") &&
+                        handleHourClick(hour)
+                      }
                       tabIndex={isOwner || !isAuthenticated ? -1 : 0}
                       className={`
                         p-3 flex flex-col items-start justify-between rounded-lg border transition-all duration-200
-                        ${isOwner || !isAuthenticated
-                          ? 'cursor-default'
-                          : 'cursor-pointer hover:bg-accent hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+                        ${
+                          isOwner || !isAuthenticated
+                            ? "cursor-default"
+                            : "cursor-pointer hover:bg-accent hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                         }
-                        ${hasAppointments
-                          ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30'
-                          : 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700/30'
+                        ${
+                          hasAppointments
+                            ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/30"
+                            : "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700/30"
                         }
                       `}
                     >
@@ -225,26 +244,49 @@ export function OrganizationHoursDialog({
                         {isOwner ? (
                           hasAppointments ? (
                             <div className="space-y-1.5">
-                              {hourAppointments.map(apt => (
-                                <div key={apt.id} className="text-xs p-1.5 bg-background/70 rounded border">
-                                  <div className="font-semibold text-foreground truncate">{apt.title}</div>
-                                  {apt.appointmentType && <div className="text-muted-foreground text-[11px] truncate">{apt.appointmentType.name}</div>}
-                                  <div className="text-muted-foreground text-[11px] mt-0.5 truncate">{apt.user.name || apt.user.email}</div>
+                              {hourAppointments.map((apt) => (
+                                <div
+                                  key={apt.id}
+                                  className="text-xs p-1.5 bg-background/70 rounded border"
+                                >
+                                  <div className="font-semibold text-foreground truncate">
+                                    {apt.title}
+                                  </div>
+                                  {apt.appointmentType && (
+                                    <div className="text-muted-foreground text-[11px] truncate">
+                                      {apt.appointmentType.name}
+                                    </div>
+                                  )}
+                                  <div className="text-muted-foreground text-[11px] mt-0.5 truncate">
+                                    {apt.user.name || apt.user.email}
+                                  </div>
                                 </div>
                               ))}
                             </div>
-                          ) : <p className="text-sm text-muted-foreground">No appointments</p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              No appointments
+                            </p>
+                          )
                         ) : (
                           <div className="text-sm">
                             {hasAppointments ? (
                               <>
-                                <p className="font-semibold text-blue-800 dark:text-blue-300">{hourAppointments.length} Appointment(s)</p>
-                                <p className="text-xs text-muted-foreground mt-1">Click to book another</p>
+                                <p className="font-semibold text-blue-800 dark:text-blue-300">
+                                  {hourAppointments.length} Appointment(s)
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Click to book another
+                                </p>
                               </>
                             ) : (
                               <>
-                                <p className="font-semibold text-green-800 dark:text-green-300">Available</p>
-                                <p className="text-xs text-muted-foreground mt-1">Click to book</p>
+                                <p className="font-semibold text-green-800 dark:text-green-300">
+                                  Available
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Click to book
+                                </p>
                               </>
                             )}
                           </div>

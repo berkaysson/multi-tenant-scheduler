@@ -3,10 +3,19 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
-import { Calendar, Clock, X, CheckCircle2, XCircle, Loader2, CheckCheck, Info } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  X,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  CheckCheck,
+  Info,
+} from "lucide-react";
 
-import { getOrganizationAppointments } from "@/actions/get-organization-appointments";
-import { updateAppointmentStatus } from "@/actions/update-appointment-status";
+import { getOrganizationAppointments } from "@/actions/organization/get-organization-appointments";
+import { updateAppointmentStatus } from "@/actions/appointment/update-appointment-status";
 import {
   Dialog,
   DialogContent,
@@ -72,9 +81,11 @@ export function OrganizationAppointmentsDialog({
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedHour, setSelectedHour] = useState<string>("");
-  const [closestAppointment, setClosestAppointment] = useState<Appointment | null>(null);
+  const [closestAppointment, setClosestAppointment] =
+    useState<Appointment | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [cancellationReason, setCancellationReason] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
@@ -262,14 +273,18 @@ export function OrganizationAppointmentsDialog({
           <DialogHeader>
             <DialogTitle>Appointments - {organizationName}</DialogTitle>
             <DialogDescription>
-              View and manage all appointments for your organization. Filter by date and hour.
+              View and manage all appointments for your organization. Filter by
+              date and hour.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 pt-4 border-t">
             <div className="flex flex-col sm:flex-row gap-4 items-end">
               <div className="flex-1 w-full">
-                <label htmlFor="date-filter" className="text-sm font-medium mb-2 block">
+                <label
+                  htmlFor="date-filter"
+                  className="text-sm font-medium mb-2 block"
+                >
                   <Calendar className="inline h-4 w-4 mr-2" />
                   Filter by Date
                 </label>
@@ -282,7 +297,10 @@ export function OrganizationAppointmentsDialog({
                 />
               </div>
               <div className="flex-1 w-full">
-                <label htmlFor="hour-filter" className="text-sm font-medium mb-2 block">
+                <label
+                  htmlFor="hour-filter"
+                  className="text-sm font-medium mb-2 block"
+                >
                   <Clock className="inline h-4 w-4 mr-2" />
                   Filter by Hour
                 </label>
@@ -292,7 +310,11 @@ export function OrganizationAppointmentsDialog({
                   disabled={!selectedDate}
                 >
                   <SelectTrigger id="hour-filter" className="w-full">
-                    <SelectValue placeholder={selectedDate ? "Select hour" : "Select date first"} />
+                    <SelectValue
+                      placeholder={
+                        selectedDate ? "Select hour" : "Select date first"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {generateHourOptions().map((hour) => (
@@ -319,7 +341,9 @@ export function OrganizationAppointmentsDialog({
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-3">
                 <Info className="h-5 w-5 text-blue-600" />
                 <p className="text-sm text-blue-800">
-                  <strong>Closest upcoming appointment:</strong> {formatDateTime(closestAppointment.startTime)} - {closestAppointment.title}
+                  <strong>Closest upcoming appointment:</strong>{" "}
+                  {formatDateTime(closestAppointment.startTime)} -{" "}
+                  {closestAppointment.title}
                 </p>
               </div>
             )}
@@ -347,20 +371,32 @@ export function OrganizationAppointmentsDialog({
             ) : (
               <div className="space-y-4">
                 {displayAppointments.map((appointment) => {
-                  const isClosest = !selectedDate && !selectedHour && closestAppointment?.id === appointment.id;
+                  const isClosest =
+                    !selectedDate &&
+                    !selectedHour &&
+                    closestAppointment?.id === appointment.id;
                   return (
-                    <Card key={appointment.id} className={isClosest ? "border-blue-400 border-2" : ""}>
+                    <Card
+                      key={appointment.id}
+                      className={isClosest ? "border-blue-400 border-2" : ""}
+                    >
                       <CardContent className="p-4">
                         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2 flex-wrap">
-                              <h3 className="text-lg font-semibold">{appointment.title}</h3>
+                              <h3 className="text-lg font-semibold">
+                                {appointment.title}
+                              </h3>
                               {isClosest && (
                                 <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                   Closest
                                 </span>
                               )}
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                                  appointment.status
+                                )}`}
+                              >
                                 {appointment.status}
                               </span>
                             </div>
@@ -373,8 +409,11 @@ export function OrganizationAppointmentsDialog({
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                               <div className="col-span-1 sm:col-span-2">
-                                <span className="font-medium">Date & Time:</span>{" "}
-                                {formatDateTime(appointment.startTime)} - {formatTime(appointment.endTime)}
+                                <span className="font-medium">
+                                  Date & Time:
+                                </span>{" "}
+                                {formatDateTime(appointment.startTime)} -{" "}
+                                {formatTime(appointment.endTime)}
                               </div>
 
                               {appointment.appointmentType && (
@@ -386,12 +425,15 @@ export function OrganizationAppointmentsDialog({
 
                               <div>
                                 <span className="font-medium">Client:</span>{" "}
-                                {appointment.user.name || appointment.user.email}
+                                {appointment.user.name ||
+                                  appointment.user.email}
                               </div>
 
                               {appointment.contactName && (
                                 <div>
-                                  <span className="font-medium">Contact Name:</span>{" "}
+                                  <span className="font-medium">
+                                    Contact Name:
+                                  </span>{" "}
                                   {appointment.contactName}
                                 </div>
                               )}
@@ -419,23 +461,34 @@ export function OrganizationAppointmentsDialog({
 
                               {appointment.cancellationReason && (
                                 <div className="sm:col-span-2">
-                                  <span className="font-medium text-red-600">Cancellation Reason:</span>{" "}
-                                  <span className="text-red-600">{appointment.cancellationReason}</span>
+                                  <span className="font-medium text-red-600">
+                                    Cancellation Reason:
+                                  </span>{" "}
+                                  <span className="text-red-600">
+                                    {appointment.cancellationReason}
+                                  </span>
                                 </div>
                               )}
                             </div>
                           </div>
 
                           <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto md:ml-4 pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-4">
-                            {appointment.status !== AppointmentStatus.CANCELLED &&
-                              appointment.status !== AppointmentStatus.COMPLETED && (
+                            {appointment.status !==
+                              AppointmentStatus.CANCELLED &&
+                              appointment.status !==
+                                AppointmentStatus.COMPLETED && (
                                 <>
-                                  {appointment.status === AppointmentStatus.PENDING && (
+                                  {appointment.status ===
+                                    AppointmentStatus.PENDING && (
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => handleConfirmClick(appointment)}
-                                      disabled={updatingStatus === appointment.id}
+                                      onClick={() =>
+                                        handleConfirmClick(appointment)
+                                      }
+                                      disabled={
+                                        updatingStatus === appointment.id
+                                      }
                                       className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full justify-start"
                                     >
                                       {updatingStatus === appointment.id ? (
@@ -449,7 +502,9 @@ export function OrganizationAppointmentsDialog({
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleCancelClick(appointment)}
+                                    onClick={() =>
+                                      handleCancelClick(appointment)
+                                    }
                                     disabled={updatingStatus === appointment.id}
                                     className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full justify-start"
                                   >
@@ -459,7 +514,9 @@ export function OrganizationAppointmentsDialog({
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleCompleteClick(appointment)}
+                                    onClick={() =>
+                                      handleCompleteClick(appointment)
+                                    }
                                     disabled={updatingStatus === appointment.id}
                                     className="text-green-600 hover:text-green-700 hover:bg-green-50 w-full justify-start"
                                   >
@@ -472,11 +529,17 @@ export function OrganizationAppointmentsDialog({
                                   </Button>
                                 </>
                               )}
-                            {appointment.status === AppointmentStatus.CANCELLED && (
-                              <span className="text-sm text-muted-foreground">Cancelled</span>
+                            {appointment.status ===
+                              AppointmentStatus.CANCELLED && (
+                              <span className="text-sm text-muted-foreground">
+                                Cancelled
+                              </span>
                             )}
-                            {appointment.status === AppointmentStatus.COMPLETED && (
-                              <span className="text-sm text-muted-foreground">Completed</span>
+                            {appointment.status ===
+                              AppointmentStatus.COMPLETED && (
+                              <span className="text-sm text-muted-foreground">
+                                Completed
+                              </span>
                             )}
                           </div>
                         </div>
@@ -495,7 +558,8 @@ export function OrganizationAppointmentsDialog({
           <DialogHeader>
             <DialogTitle>Cancel Appointment</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this appointment? Please provide a reason.
+              Are you sure you want to cancel this appointment? Please provide a
+              reason.
             </DialogDescription>
           </DialogHeader>
 
@@ -503,7 +567,9 @@ export function OrganizationAppointmentsDialog({
             {selectedAppointment && (
               <div>
                 <p className="text-sm font-medium mb-2">Appointment:</p>
-                <p className="text-sm text-gray-600">{selectedAppointment.title}</p>
+                <p className="text-sm text-gray-600">
+                  {selectedAppointment.title}
+                </p>
                 <p className="text-sm text-gray-600">
                   {formatDateTime(selectedAppointment.startTime)}
                 </p>
@@ -545,7 +611,9 @@ export function OrganizationAppointmentsDialog({
               onClick={handleCancelConfirm}
               disabled={updatingStatus !== null || !cancellationReason.trim()}
             >
-              {updatingStatus && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {updatingStatus && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Cancel Appointment
             </Button>
           </div>
