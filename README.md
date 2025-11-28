@@ -1,72 +1,105 @@
-# Next.js Authentication Starter
+# Multi-Tenant Appointment Scheduler
 
-## Description
-
-This project is a Next.js 14 starter app designed to provide a robust and scalable foundation for building web applications with user authentication. Leveraging PostgreSQL, Prisma, and NextAuth, it offers integration and best practices for secure and efficient user management.
-
-## Tech Stack
-
-- **[Next.js 14](https://nextjs.org/)**: The latest version of the popular React framework for building server-side rendered applications.
-- **[PostgreSQL](https://www.postgresql.org/)**: A powerful, open source object-relational database system.
-- **[Prisma](https://www.prisma.io/)**: A next-generation ORM for Node.js and TypeScript.
-- **[NextAuth.js](https://next-auth.js.org/)**: Authentication for Next.js applications.
-- **[Resend](https://www.npmjs.com/package/resend)**: Email sending service.
-- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for rapid UI development.
-- **[ShadCN](https://shadcn.dev/)**: A collection of components built with Tailwind CSS and Radix UI.
+A robust and scalable multi-tenant scheduling application built with **Next.js 14**. This platform allows users to create organizations, manage staff availability, define appointment types, and handle bookings efficiently. It features a secure authentication system, role-based access control, and a modern user interface.
 
 ## Features
 
-- **Login Form**: Includes email and password fields with options for social logins using Google and GitHub.
-- **Register Form**: Allows users to sign up with email, password, and name.
-- **Client-Server Integration**: Communication between the client-side and server-side components.
-- **Database Integration**: Utilizes PostgreSQL and Prisma for database management.
-- **Middleware Routes**: Implements protected routes, authentication routes, and a profile page for user settings.
-- **Token Generation**: Generates tokens for email verification and password reset, and sends them via Resend.io.
-- **Verification and Password Reset**: Handles user email verification and password reset processes.
-- **Form Validation**: Uses Zod for clear form validation.
-- **Encryption**: Employs bcryptjs for password encryption.
-- **Decent UI**: Features a user interface built with Tailwind CSS and ShadCN.
+- **🏢 Multi-Tenancy**: Create and manage multiple organizations, each with its own profile, settings, and members.
+- **📅 Advanced Scheduling**:
+  - Define custom **Appointment Types** (duration, description, color).
+  - Set **Weekly Availability** schedules per organization.
+  - Manage **Unavailable Dates** (holidays, closures).
+- **👥 Role-Based Access Control (RBAC)**:
+  - **Admin**: System-wide control.
+  - **Manager**: Organization owner/admin capabilities.
+  - **User**: Standard user for booking appointments.
+- **🔐 Secure Authentication**:
+  - Powered by **NextAuth.js v5**.
+  - Supports **Google OAuth** and **Credentials** (Email/Password).
+  - Includes **Email Verification** and **Password Reset** flows via **Resend**.
+- **🔔 Notifications**: System for tracking appointment updates (Created, Cancelled, Confirmed).
+- **🎨 Modern UI**: Responsive design built with **Tailwind CSS** and **ShadCN UI**.
 
+## Tech Stack
 
-## How to Use
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Database**: [PostgreSQL](https://www.postgresql.org/) (via Supabase)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Authentication**: [NextAuth.js](https://authjs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [ShadCN](https://ui.shadcn.com/)
+- **Email**: [Resend](https://resend.com/)
+
+## Project Documentation
+
+Detailed documentation for specific modules and actions can be found in the following README files:
+
+- **[Data Access Layer](src/data/README.md)**: Documentation for the data access layer, including user, token, and notification management.
+- **[Appointment Actions](src/actions/appointment/README.md)**: Server actions for creating, updating, and managing appointments.
+- **[Auth Actions](src/actions/auth/README.md)**: Server actions for authentication processes like login, register, and password reset.
+- **[Notification Actions](src/actions/notification/README.md)**: Server actions for handling user notifications.
+- **[Organization Actions](src/actions/organization/README.md)**: Server actions for organization management, including availability and scheduling.
+
+## Key Configuration Files
+
+- **[Database Schema (Prisma)](src/prisma/schema.prisma)**: Defines the database models for Users, Organizations, Appointments, and more.
+- **[Auth Configuration](src/auth.config.ts)**: Configures NextAuth providers (Google, Credentials) and authorization logic.
+- **[Auth Initialization](src/auth.ts)**: Initializes NextAuth with Prisma adapter and session callbacks.
+- **[Middleware](src/middleware.ts)**: Handles route protection, authentication checks, and role-based redirects.
+- **[Route Definitions](src/routes.ts)**: Defines public, auth, and protected routes, along with role-based access control rules.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- PostgreSQL Database (e.g., Supabase)
 
 ### Installation
 
-1. **Clone the repository**:
+1.  **Clone the repository**:
 
-   ```sh
-   git clone <this repo>
-   cd nextjs-auth-starter
-   ```
+    ```bash
+    git clone <repository-url>
+    cd <project-directory>
+    ```
 
-2. **Install dependencies**:
+2.  **Install dependencies**:
 
-   ```sh
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
-3. **Set up environment variables**:
-   Create a `.env` file in the root directory and add the following variables:
+3.  **Set up environment variables**:
+    Create a `.env` file in the root directory and add the following variables:
 
-   - `DATABASE_URL`
-   - `AUTH_SECRET`
-   - `GITHUB_CLIENT_ID`
-   - `GITHUB_CLIENT_SECRET`
-   - `GOOGLE_CLIENT_ID`
-   - `GOOGLE_CLIENT_SECRET`
-   - `RESEND_API_KEY`
+    ```env
+    # Database (Supabase Transaction & Session Connection Poolers)
+    SUPABASE_DATABASE_URL="postgres://..."
+    SUPABASE_DIRECT_URL="postgres://..."
 
-4. **Edit Prisma models as you want and Run Prisma migrations**:
+    # NextAuth
+    AUTH_SECRET="your-secret-key"
 
-   ```sh
-   npx prisma migrate dev
-   ```
+    # OAuth Providers
+    GOOGLE_CLIENT_ID="your-google-client-id"
+    GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-5. **Start the development server**:
-   ```sh
-   npm run dev
-   ```
+    # Email Service
+    RESEND_API_KEY="re_..."
 
-## Contributing
+    # App URL
+    NEXT_PUBLIC_APP_URL="http://localhost:3000"
+    ```
 
-Feel free to fork.
+4.  **Run Database Migrations**:
+
+    ```bash
+    npx prisma migrate dev
+    ```
+
+5.  **Start the development server**:
+    ```bash
+    npm run dev
+    ```
+
+The application should now be running at `http://localhost:3000`.
