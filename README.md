@@ -45,7 +45,35 @@ Detailed documentation for specific modules and actions can be found in the foll
 - **[Auth Configuration](src/auth.config.ts)**: Configures NextAuth providers (Google, Credentials) and authorization logic.
 - **[Auth Initialization](src/auth.ts)**: Initializes NextAuth with Prisma adapter and session callbacks.
 - **[Middleware](src/middleware.ts)**: Handles route protection, authentication checks, and role-based redirects.
+
 - **[Route Definitions](src/routes.ts)**: Defines public, auth, and protected routes, along with role-based access control rules.
+
+## Database Schema
+
+The application uses **PostgreSQL** with **Prisma ORM**. The schema (`src/prisma/schema.prisma`) defines the following core models:
+
+### User & Authentication
+
+- **User**: The central user entity. Stores name, email, password (hashed), role (`ADMIN`, `MANAGER`, `USER`), and profile image.
+- **Account**: Handles OAuth connections (e.g., Google) for users.
+- **VerificationToken**: Stores tokens for email verification.
+- **PasswordResetToken**: Stores tokens for password reset requests.
+
+### Organization Management
+
+- **Organization**: Represents a tenant/business. Contains details like name, slug (for URLs), contact info, and location.
+- **OrganizationMember**: Links users to organizations. Currently, a user can create organizations (becoming the owner/manager).
+- **WeeklyAvailability**: Defines the recurring operating hours for an organization (e.g., Mon-Fri, 9:00-17:00).
+- **UnavailableDate**: Specifies specific dates when the organization is closed (e.g., holidays).
+
+### Appointments
+
+- **Appointment**: Represents a booking. Links a `User` (client) to an `Organization`. Includes status (`PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`), time slot, and optional notes.
+- **AppointmentType**: Defines the services an organization offers (e.g., "General Checkup", "Consultation"). Includes duration and color coding.
+
+### System
+
+- **Notification**: Stores system notifications for users (e.g., "Appointment Confirmed").
 
 ## Getting Started
 
