@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { logout } from "@/actions/auth/logout";
 
 export function UserNav() {
   const { data: session } = useSession();
@@ -21,11 +22,18 @@ export function UserNav() {
   }
 
   const { name, email, image } = session.user;
-  const initials = name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase() || "?";
+  const initials =
+    name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "?";
+
+  const onSignOutClick = () => {
+    logout().then(() => {
+      window.location.href = "/";
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -51,9 +59,7 @@ export function UserNav() {
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>
-          Sign out
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onSignOutClick}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
